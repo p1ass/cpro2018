@@ -5,15 +5,15 @@
             "name": "(gdb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${fileDirname}/${fileBasenameNoExtension}",
+            "program": "${workspaceFolder}/${fileBasenameNoExtension}",
             "linux" : {
                 "miDebuggerPath": "gdb",
-                "MIMode": "gdb",
+                "MIMode": "gdb",    
             },
             "windows": {
-                "program": "${fileDirname}/${fileBasenameNoExtension}.exe",
-                "miDebuggerPath": "C:/MinGW64/mingw64/bin/gdb.exe",                    
-                "MIMode": "gdb",
+                "program": "${workspaceFolder}/${fileBasenameNoExtension}.exe",
+                "miDebuggerPath": "c:/MinGW/bin/gdb.exe",                    
+                "MIMode": "gdb",    
             },
             "osx": {
                 "MIMode": "lldb",

@@ -5,20 +5,23 @@
             "label": "GCC debug build",
             "type": "shell",
             "command": "gcc",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
             "windows": {
                 "args": [
-                    "-g", "-Wall", "-O0", "-o", "${fileDirname}/${fileBasenameNoExtension}.exe", "${file}", "-lm"
+                    "-g", "-Wall", "-O0", "-o", "\"${fileBasenameNoExtension}.exe\"", "\"${relativeFile}\"", "-lm"
                 ]
             },
             "linux": {
                 "args": [
-                    "-g", "-Wall", "-O0", "-o", "${fileDirname}/${fileBasenameNoExtension}", "${file}", "-lm"
+                    "-g", "-Wall", "-O0", "-o", "\"${fileBasenameNoExtension}\"", "\"${relativeFile}\"", "-lm"
                 ]
             },
             "osx": {
                 "args": [
-                    "-g", "-Wall", "-O0", "-o", "${fileDirname}/${fileBasenameNoExtension}", "${file}", "-lm"
-                ]
+                    "-g", "-Wall", "-O0", "-o", "\"${fileBasenameNoExtension}\"", "\"${relativeFile}\"", "-lm"
+                ]    
             },
             "presentation": {
                 "reveal": "always",
@@ -27,6 +30,37 @@
             "group": {
                 "kind": "build",
                 "isDefault": true
+            }
+        },
+        {
+            "label": "GCC release build",
+            "type": "shell",
+            "command": "gcc",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "windows": {
+                "args": [
+                    "-g", "-Wall", "-O2", "-o", "\"${fileBasenameNoExtension}.exe\"", "\"${relativeFile}\"", "-lm"
+                ]
+            },
+            "linux": {
+                "args": [
+                    "-g", "-Wall", "-O2", "-o", "\"${fileBasenameNoExtension}\"", "\"${relativeFile}\"", "-lm"
+                ]
+            },
+            "osx": {
+                "args": [
+                    "-g", "-Wall", "-O2", "-o", "\"${fileBasenameNoExtension}\"", "\"${relativeFile}\"", "-lm"
+                ]    
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "group": {
+                "kind": "test",
+                "isDefault": true,
             }
         }
     ]

@@ -4,12 +4,7 @@ GitHub URL : https://github.com/naoki-kishi/cpro2018
 */
 
 #include <stdio.h>
-
-int main(){
-    int x;
-    x=2;
-    x-=7;
-    x/=4;
-    printf("%d\n",x);
-    return 0;
+int main() {
+printf("Hello world,\nMy name is Naoki Kishi.\n");
+return 0;
 }

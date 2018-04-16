@@ -1,3 +1,9 @@
 {
-    "C_Cpp.intelliSenseEngineFallback": "Enabled"
+    "terminal.integrated.env.windows": {
+        "PATH": "C:\\MinGW\\bin;${env:PATH}"
+    },
+    "C_Cpp.errorSquiggles": "Disabled",
+    "files.associations": {
+        "stdio.h": "c"
+    }
 }
