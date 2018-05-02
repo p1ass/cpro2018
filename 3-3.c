@@ -11,6 +11,8 @@ GitHub URL : https://github.com/naoki-kishi/cpro2018
 #define CHOKI 2
 #define PA 5
 
+int hands[3] = {GU,CHOKI,PA};
+
  //自分の手を入力する
 int input_hand(void){
     int hand;
@@ -18,12 +20,13 @@ int input_hand(void){
         printf("Your input(0,2,5):");
         scanf("%d",&hand);
 
-        if(hand != GU && hand != CHOKI && hand != PA){
-            printf("Invalid input => Input again.\n");
+        int i;
+        for(i=0;i<3;i++){
+            if(hand == hands[i]){
+                return hand;
+            }
         }
-        else{
-            break;
-        }
+        printf("Invalid input => Input again.\n");
     }
     return hand;
 }
@@ -31,7 +34,6 @@ int input_hand(void){
 //ランダムに手を決める
 int get_ran_hand(void){
     int hand;
-    int hands[3] = {GU,CHOKI,PA};
 
     srand(time(NULL));
     hand = hands[rand() % 3];
