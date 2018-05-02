@@ -7,14 +7,18 @@ GitHub URL : https://github.com/naoki-kishi/cpro2018
 #include <stdlib.h>
 #include <time.h>
 
+#define GU 0
+#define CHOKI 2
+#define PA 5
+
  //自分の手を入力する
 int input_hand(void){
-    int hand = 0;
+    int hand;
     while(1){
         printf("Your input(0,2,5):");
         scanf("%d",&hand);
 
-        if(hand != 0 && hand != 2 && hand != 5){
+        if(hand != GU && hand != CHOKI && hand != PA){
             printf("Invalid input => Input again.\n");
         }
         else{
@@ -26,27 +30,22 @@ int input_hand(void){
 
 //ランダムに手を決める
 int get_ran_hand(void){
-    int hand = 0;
+    int hand;
+    int hands[3] = {GU,CHOKI,PA};
+
     srand(time(NULL));
-    hand = rand() % 3;
-
-    if (hand == 1){
-        hand = 2;
-    }else if(hand == 2){
-        hand = 5;
-    }
-
+    hand = hands[rand() % 3];
     return hand;
 }
 
 int main(void){
-    int my_hand = 0;
-    int cpu_hand = 0;
+    int my_hand;
+    int cpu_hand;
 
     int judge[3][2] = {
-                {0,2},
-                {2,5},
-                {5,0}};
+                {GU,CHOKI},
+                {CHOKI,PA},
+                {PA,GU}};
 
     //メインループ
     while(1){
