@@ -15,7 +15,7 @@ int hands[3] = {GU,CHOKI,PA};
 
  //自分の手を入力する
 int input_hand(void){
-    int hand;
+    int hand = GU;
     while(1){
         printf("Your input(0,2,5):");
         scanf("%d",&hand);
@@ -33,7 +33,7 @@ int input_hand(void){
 
 //ランダムに手を決める
 int get_ran_hand(void){
-    int hand;
+    int hand = GU;
 
     srand(time(NULL));
     hand = hands[rand() % 3];
