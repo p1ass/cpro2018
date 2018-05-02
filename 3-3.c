@@ -60,10 +60,10 @@ int main(void){
         int i;
         for(i=0;i<3;i++){
             if(cpu_hand == judge[i][0] && my_hand == judge[i][1]){
-                printf("Comp win.");
+                printf("Comp win.\n");
                 return 0;
             }else if(my_hand == judge[i][0] && cpu_hand == judge[i][1]){
-                printf("You win.");
+                printf("You win.\n");
                 return 0;
             }
         }
