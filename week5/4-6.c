@@ -9,7 +9,6 @@ GitHub URL : https://github.com/naoki-kishi/cpro2018
 
 int hist(int n);
 
-/* 関数histを自分で作成 */
 int main() {
     srand(time(NULL));
     hist(10);
