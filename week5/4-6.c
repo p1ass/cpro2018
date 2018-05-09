@@ -33,7 +33,7 @@ int hist(int n){
 
     //表示回数を配列に保存
     while(i<n){
-        num = rand() % 10;
+        num = (int)(rand()*10/(1.0*RAND_MAX));
         counter[num] += 1;
         i++;
     }
