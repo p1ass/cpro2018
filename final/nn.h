@@ -1,21 +1,48 @@
 #ifndef NN_H
 #define NN_H
 
+#define _POSIX_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include <assert.h>
-#include <arpa/inet.h>
-
-#include <math.h>
-#include <float.h>
 #include <stdarg.h>
 #include <stdint.h>
+#include <assert.h>
+#include <math.h>
+#include <float.h>
 #include <limits.h>
+#include <string.h>
 
 float * load_mnist_bmp(const char * filename, ...);
 void save_mnist_bmp(const float * x, const char * filename, ...);
 
+#ifndef __APPLE__
+#include <malloc.h>
+uint32_t ntohl(uint32_t const net) {
+      // https://codereview.stackexchange.com/questions/149717/implementation-of-c-standard-library-function-ntohl
+      uint8_t data[4] = {};
+      memcpy(&data, &net, sizeof(data));
+
+      return ((uint32_t) data[3] << 0)
+           | ((uint32_t) data[2] << 8)
+           | ((uint32_t) data[1] << 16)
+           | ((uint32_t) data[0] << 24);
+}
+#endif
+
+#ifndef PATH_MAX
+#define PATH_MAX 260
+#endif
+
+#ifdef __MINGW32__
+int posix_memalign(void **memptr, size_t alignment, size_t size) {
+      *memptr = malloc(size); //__mingw_aligned_malloc(size, alignment);
+      if(NULL == *memptr) {
+            return 1;
+      }
+      return 0;
+}
+#endif
 
 // MNISTの画像を読み込む
 float * load_mnist_image(const char * filename, int * width, int * height, int * count) {
@@ -36,13 +63,11 @@ float * load_mnist_image(const char * filename, int * width, int * height, int *
 
   const int N = nr*nc*ni;
   
-  float * buf = NULL;
-  r = posix_memalign((void**)(&buf), 1024, N*sizeof(float));
-  assert(r == 0);
+  float * buf = malloc(N*sizeof(float));
+  assert(NULL != buf);
 
-  unsigned char * img = NULL;
-  r = posix_memalign((void**)(&img), 1024, N);
-  assert(r == 0);
+  unsigned char * img = malloc(N);
+  assert(NULL != img);
 
   r = fread(img, N, 1, fp);
   assert(r == 1);
@@ -73,9 +98,8 @@ unsigned char * load_mnist_label(const char * filename, int * count) {
 
   int ni = ntohl(header[1]);
 
-  unsigned char * buf = NULL;
-  r = posix_memalign((void**)(&buf), 1024, ni);
-  assert(r == 0);
+  unsigned char * buf = malloc(ni);
+  assert(NULL != buf);
   
   r = fread(buf, ni, 1, fp);
   assert(r==1);
@@ -127,6 +151,11 @@ void load_mnist(float ** train_x, unsigned char ** train_y, int * train_count,
 
 */
 
+#define STBI_NO_PSD
+#define STBI_NO_TGA
+#define STBI_NO_GIF
+#define STBI_NO_HDR
+#define STBI_NO_PIC
 
 
 //#define STB_IMAGE_STATIC
@@ -8299,9 +8328,8 @@ float * load_mnist_bmp(const char * filename, ...) {
   int nchannels;
   unsigned char * img8 = stbi_load(filename, &width, &height, &nchannels, 0);
   
-  float * imgf = NULL;
-  int r = posix_memalign((void**)(&imgf), 1024, sizeof(float)*28*28);
-  assert(r == 0);
+  float * imgf = malloc(sizeof(float)*28*28);
+  assert(NULL != imgf);
   
   int x, y;
   const float dx = (width)/28.0;

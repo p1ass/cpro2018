@@ -1,0 +1,15 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"git.enabled": false,
+		"git.ignoreMissingGitWarning": true,
+		"extensions.ignoreRecommendations": false,
+		"files.associations": {
+			"stdlib.h": "c"
+		}
+	}
+}
