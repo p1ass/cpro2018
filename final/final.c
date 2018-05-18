@@ -13,8 +13,7 @@ void relu_bwd(int n, const float * x, const float * dEdy, float * dEdx);
 void fc_bwd(int m, int n, const float * x, const float * dEdy, const float * A, float * dEdA, float * dEdb, float * dEdx);
 void backward3(const float * A, const float * b, const float * x, unsigned char t, float * y, float * dEdA, float * dEdb);
 void shuffle(int n,int * x);
-float cross_entropy_error(const float * y, int t);
-
+float cross_entropy_error(const float  y, int t);
 
 int main() {
     float * train_x = NULL;
@@ -38,13 +37,12 @@ int main() {
     // を使用することができる．
     srand(time(NULL));
 
-    int i;
-    int * index = malloc(sizeof(int)*train_count);
-
-    for(i=0 ; i<train_count ; i++) {
-        index[i] = i;
-    }
-    shuffle(train_count, index);
+    float * y = malloc(sizeof(float)*10);
+    float * dEdA = malloc(sizeof(float)*784*10);
+    float * dEdb = malloc(sizeof(float)*10);
+    backward3(A_784x10, b_784x10, train_x + 784*8, train_y[8], y, dEdA, dEdb);
+    print(10, 784, dEdA);
+    print(1, 10, dEdb);
     return 0;
 }
 
@@ -192,7 +190,7 @@ void fc_bwd(int m, int n, const float * x, const float * dEdy, const float * A, 
     for(i=0;i<n;i++){
 
         for(j=0;j<m;j++){
-            dEdx[i] += A[j*n+1] +dEdy[j];
+            dEdx[i] += A[j*n+i] +dEdy[j];
         }
     }
 
@@ -234,7 +232,7 @@ void shuffle(int n,int * x){
 }
 
 //損失関数を求める
-float cross_entropy_error(const float * y, int t){
-    return t*log(y[i]+1e-7);
+float cross_entropy_error(const float  y, int t){
+    return t*log(y+1e-7);
 
 }
