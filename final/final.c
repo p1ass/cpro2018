@@ -4,8 +4,8 @@
 //プロトタイプ宣言
 void print(int m,int n,const float *x);
 void copy(int m, int n, const float *x, float *y);
-void fc(int m,int n,const float *A,const float *b,const float *x, float *y);
-void ReLU(int n,const float *x, float *y);
+void fc(int m, int n, const float *x, const float *A, const float *b, float *y);
+void relu(int n,const float *x, float *y);
 void softmax(int n,const float *x, float *y);
 int inference3(const float *A, const float *b, const float *x,float * y);
 void softmaxwithloss_bwd(int n, const float *y, unsigned char t, float *dEdx);
@@ -18,6 +18,9 @@ void add(int n, const float *x, float *o);
 void scale(int n, float x, float *o);
 void init(int n, float x, float *o);
 void rand_init(int n, float *o);
+
+#define M 10
+#define N 784
 
 int main()
 {
@@ -116,9 +119,6 @@ int main()
           printf("Accuracy : %f ％ \n",acc);
           printf("Loss Average : %f\n",loss_sum/test_count);
       }
-
-      return 0;
-
 }
 
     //行列を表示
@@ -144,23 +144,22 @@ int main()
     }
 
     //y = A*x +b を計算する
-    void fc(int m, int n, const float *A, const float *b, const float *x, float *y){
+    void fc(int m, int n, const float *x, const float *A, const float *b, float *y){
         int i, j;
 
-        for (i = 0; i < n; i++){
-            y[i] = 0.0;
-            for (j = 0; j < m; j++){
-                y[i] += A[i * m + j] * x[j];
+        for (i = 0; i < m; i++){
+            y[i] = b[i];
+            for (j = 0; j < n; j++){
+                y[i] += A[i * n + j] * x[j];
             }
-            y[i] += b[i];
         }
     }
 
-    //ReLU演算を行う y = ReLU(x)
-    void ReLU(int n, const float *x, float *y){
+    //relu演算を行う y = relu(x)
+    void relu(int m, const float *x, float *y){
         int i;
 
-        for (i = 0; i < n; i++){
+        for (i = 0; i < m; i++){
             if (x[i] > 0){
                 y[i] = x[i];
             }
@@ -171,26 +170,26 @@ int main()
     }
 
     //softmax
-    void softmax(int n, const float *x, float *y){
+    void softmax(int m, const float *x, float *y){
         int i;
         float max = x[0]; //xの最大値
         float sum = 0;    //sigma(exp(x-max))
 
         //xの最大値を求める
-        for (i = 0; i < n; i++){
+        for (i = 0; i < m; i++){
             if (x[i] > max){
                 max = x[i];
             }
         }
 
         //sigma(exp(x-max))を計算
-        for (i = 0; i < n; i++)
+        for (i = 0; i < m; i++)
         {
             sum += exp(x[i] - max);
         }
 
         //softmax演算を行う
-        for (i = 0; i < n; i++)
+        for (i = 0; i < m; i++)
         {
             y[i] = exp(x[i] - max) / sum;
         }
@@ -198,20 +197,18 @@ int main()
 
     //3層による推論
     int inference3(const float *A, const float *b, const float *x,float * y){
-        int m = 784;
-        int n = 10;
-        // float *y = malloc(sizeof(float) * 10);
-        // float y[10];
+        int m = 10;
+        int n = 784;
 
-        fc(m, n, A, b, x, y);
-        ReLU(n, y, y);
-        softmax(n, y, y);
+        fc(m, n, x, A, b, y);
+        relu(m, y, y);
+        softmax(m, y, y);
 
         float max = y[0]; //yの要素の最大のもの
         int index = 0;    //yの要素が最大の時の添字
         int i;
 
-        for (i = 0; i < n; i++){
+        for (i = 0; i < m; i++){
             if (y[i] > max){
                 max = y[i];
                 index = i;
@@ -222,7 +219,7 @@ int main()
     }
 
     //softmaxの逆誤差伝播
-    void softmaxwithloss_bwd(int n, const float *y, unsigned char t, float *dEdx){
+    void softmaxwithloss_bwd(int m, const float *y, unsigned char t, float *dEdx){
         float answers[10] = {0};
         int i = 0;
 
@@ -231,15 +228,15 @@ int main()
                 answers[i] = 1;
             }
         }
-        for (i = 0; i < n; i++){
+        for (i = 0; i < m; i++){
             dEdx[i] = y[i] - answers[i];
         }
     }
 
     //reluの逆誤差伝播
-    void relu_bwd(int n, const float *x, const float *dEdy, float *dEdx){
+    void relu_bwd(int m, const float *x, const float *dEdy, float *dEdx){
         int i = 0;
-        for (i = 0; i < n; i++){
+        for (i = 0; i < m; i++){
             if (x[i] > 0){
                 dEdx[i] = dEdy[i];
             }
@@ -250,46 +247,46 @@ int main()
     }
 
     //FC層の逆誤差伝播
-    void fc_bwd(int m, int n, const float *x, const float *dEdy, const float *A, float *dEdA, float *dEdb, float *dEdx){
-        int i, j = 0;
+       void fc_bwd(int m, int n, const float *x, const float *dEdy, const float *A, float *dEdA, float *dEdb, float *dEdx){
+           int i, j = 0;
 
-        for (i = 0; i < n; i++){
-            for (j = 0; j < m; j++){
-                // dEdA[j*n+i] = 0;
-                dEdA[j * n + i] = dEdy[i] * x[j];
-            }
-        }
+           for (i = 0; i < m; i++){
+               for (j = 0; j < n; j++){
+                   dEdA[i * n + j] = dEdy[i] * x[j];
+               }
+           }
 
-        for (i = 0; i < n; i++){
-            dEdb[i] = dEdy[i];
-        }
+           for (i = 0; i < m; i++){
+               dEdb[i] = dEdy[i];
+           }
 
-        for (i = 0; i < n; i++){
-            dEdx[i] = 0;
-            for (j = 0; j < m; j++){
-                dEdx[i] += A[j * n + i] + dEdy[j];
-            }
-        }
-    }
+           for (i = 0; i < m; i++){
+               dEdx[i] = 0;
+               for (j = 0; j < n; j++){
+                   dEdx[i] += A[j * m + i] + dEdy[j];
+               }
+           }
+       }
 
     //3層の逆誤差伝播
     void backward3(const float *A, const float *b, const float *x, unsigned char t, float *y, float *dEdA, float *dEdb){
-        int m = 784;
-        int n = 10;
+        int m = 10;
+        int n = 784;
 
         float before_fc[784];
         float before_relu[10];
         //順伝播
-        copy(1, m, x, before_fc);
-        fc(m, n, A, b, x, y);
-        copy(1, n, y, before_relu);
-        ReLU(n, y, y);
-        softmax(n, y, y);
+        copy(1, n, x, before_fc);
+        fc(m, n, x, A, b, y);
+        copy(1, m, y, before_relu);
+        relu(m, y, y);
+        softmax(m, y, y);
 
         //逆伝播
-        softmaxwithloss_bwd(n, y, t, y);
-        relu_bwd(n, before_relu, y, y);
+        softmaxwithloss_bwd(m, y, t, y);
+        relu_bwd(m, before_relu, y, y);
         fc_bwd(m, n, before_fc, y, A, dEdA, dEdb, y);
+
     }
 
     void shuffle(int n, int *x){
