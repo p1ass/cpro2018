@@ -42,81 +42,83 @@ int main()
     // を使用することができる．
 
     //初期化
-    srand(time(NULL));
-    float *y = malloc(sizeof(float) * 10);
-    float *dEdA = malloc(sizeof(float) * 784 * 10);
-    float *dEdb = malloc(sizeof(float) * 10);
-    float *dEdA_av = malloc(sizeof(float) * 784 * 10);//平均
-    float *dEdb_av = malloc(sizeof(float) * 10);//平均
-    float *A = malloc(sizeof(float)* 784*10);
-    float *b = malloc(sizeof(float)*10);
-    int * index = malloc(sizeof(int)*train_count);
-    int epoch = 20;
-    int batch = 100;
-    float h = 0.01;
-    int i,j,k,l,m;
-    float acc = 0.0;
+      srand(time(NULL));
+      float *y = malloc(sizeof(float) * 10);
+      float *dEdA = malloc(sizeof(float) * 784 * 10);
+      float *dEdb = malloc(sizeof(float) * 10);
+      float *dEdA_av = malloc(sizeof(float) * 784 * 10);//平均
+      float *dEdb_av = malloc(sizeof(float) * 10);//平均
+      float *A = malloc(sizeof(float)* 784*10);
+      float *b = malloc(sizeof(float)*10);
+      int * index = malloc(sizeof(int)*train_count);
+      int epoch = 20;
+      int batch = 100;
+      float h = 0.01;
+      int i,j,k,l,m;
+      float acc = 0.0;
 
-    rand_init(784*10,A);
-    rand_init(10,b);
-    //エポックを回す
-    for(i=0;i<epoch;i++){
-        printf("Epoch %d/%d\n", i+1,epoch);
-        //インデックスを作成し、並び替え
+      rand_init(784*10,A);
+      rand_init(10,b);
+      //エポックを回す
+      for(i=0;i<epoch;i++){
+          printf("-----------------------------------------------------\n");
+          printf("Epoch %d/%d\n", i+1,epoch);
+          //インデックスを作成し、並び替え
 
-        for(l=0 ; l<train_count ; l+=1) {
-            index[l] = l;
-            // printf("%d\n",index[i]);
-        }
+          for(l=0 ; l<train_count ; l+=1) {
+              index[l] = l;
+              // printf("%d\n",index[i]);
+          }
 
-        shuffle(train_count, index);
+          shuffle(train_count, index);
 
-        //ミニバッチ
-        for(j=0;j<train_count /batch;j++){
-            // printf("Mini batch %d\n",j+1);
-            //平均勾配を初期化
-            init(784*10,0,dEdA_av);
-            init(10,0,dEdb_av);
+          //ミニバッチ
+          for(j=0;j<train_count /batch;j++){
+              // printf("Mini batch %d\n",j+1);
+              //平均勾配を初期化
+              init(784*10,0,dEdA_av);
+              init(10,0,dEdb_av);
 
-            //一つ一つの勾配を計算する
-            for(k=0;k<batch;k++){
-                backward3(A,b,train_x+ 784*index[j*batch+k] ,train_y[index[j*batch+k]],y,dEdA,dEdb);
-                add(784*10,dEdA,dEdA_av);
-                add(10,dEdb,dEdb_av);
-            }
-            // print(1,10,dEdb_av);
+              //一つ一つの勾配を計算する
+              for(k=0;k<batch;k++){
+                  backward3(A,b,train_x+ 784*index[j*batch+k] ,train_y[index[j*batch+k]],y,dEdA,dEdb);
+                  add(784*10,dEdA,dEdA_av);
+                  add(10,dEdb,dEdb_av);
+              }
+              // print(1,10,dEdb_av);
 
-            // print(1,10,dEdb_av);
-            //ミニバッチで割って平均を求める
-            scale(784*10,-h/batch,dEdA_av);
-            scale(10,-h/batch,dEdb_av);
-            // print(1,10,dEdb_av);
+              // print(1,10,dEdb_av);
+              //ミニバッチで割って平均を求める
+              scale(784*10,-h/batch,dEdA_av);
+              scale(10,-h/batch,dEdb_av);
+              // print(1,10,dEdb_av);
 
-            //係数A,bを更新
-            add(784*10,dEdA_av,A);
-            add(10,dEdb_av,b);
+              //係数A,bを更新
+              add(784*10,dEdA_av,A);
+              add(10,dEdb_av,b);
 
 
-        }
+          }
 
-        //テストデータでの推論
-        int sum = 0;
-        float loss_sum = 0;
-        // printf("test_count : %d\n",test_count);
-        for(m=0 ; m<test_count ; m++) {
-            if(inference3(A, b, test_x + m*width*height,y) == test_y[m]) {
-                sum++;
-            }
-            loss_sum += cross_entropy_error(y,test_y[m]);
+          //テストデータでの推論
+          int sum = 0;
+          float loss_sum = 0;
+          // printf("test_count : %d\n",test_count);
+          for(m=0 ; m<test_count ; m++) {
+              if(inference3(A, b, test_x + m*width*height,y) == test_y[m]) {
+                  sum++;
+              }
+              loss_sum += cross_entropy_error(y,test_y[m]);
 
-        }
-        acc = sum * 100.0 / test_count;
+          }
+          acc = sum * 100.0 / test_count;
 
-        printf("Accuracy : %f ％ \n",acc);
-        printf("Loss Average : %f\n",loss_sum/test_count);
-    }
+          printf("Accuracy : %f ％ \n",acc);
+          printf("Loss Average : %f\n",loss_sum/test_count);
+      }
 
-    return 0;
+      return 0;
+
 }
 
     //行列を表示
@@ -254,11 +256,11 @@ int main()
         for (i = 0; i < n; i++){
             for (j = 0; j < m; j++){
                 // dEdA[j*n+i] = 0;
-                dEdA[j * n + i] = dEdy[i] * x[i];
+                dEdA[j * n + i] = dEdy[i] * x[j];
             }
         }
 
-        for (i = 0; i < m; i++){
+        for (i = 0; i < n; i++){
             dEdb[i] = dEdy[i];
         }
 
