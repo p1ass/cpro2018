@@ -6,7 +6,6 @@ GitHub URL : https://github.com/naoki-kishi/cpro2018
 #include <stdio.h>
 
 int main(void){
-
     FILE *r_fp, *w_fp;
     char str[128];
 
