@@ -18,13 +18,6 @@ void print(int m, int n, const float *x){
     }
 }
 
-void rand_init(int n, float *o){
-    int i;
-
-    for (i = 0; i < n; i++){
-        o[i] = ((float)rand() / ((float)RAND_MAX + 1)) * 2 - 1 ;
-    }
-}
 
 void init(int n, float x, float *o){
     int i;
@@ -61,7 +54,7 @@ int main(int argc, char *argv[]) {
 
     float *A = malloc(sizeof(float) * m*n);
     float *b = malloc(sizeof(float) *m);
-    
+
     init(m*n,1,A);
     init(m,2,b);
 
