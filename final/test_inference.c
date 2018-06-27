@@ -2,6 +2,10 @@
 #include "util.h"
 #include <time.h>
 
+/*
+第1~3引数 : FC1~FC3のパラメータの読み込み先
+第4引数 : 推論する画像 
+*/
 int main(int argc, char *argv[]){
 
     float *train_x = NULL;

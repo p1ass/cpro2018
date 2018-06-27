@@ -5,6 +5,9 @@
 //プロトタイプ宣言
 void learn_6layers(int train_count,int test_count,float * train_x,unsigned char * train_y,float * test_x, unsigned char * test_y, char *argv[]);
 
+/*
+第1~3引数 : FC1~FC3のパラメータの保存先 
+*/
 int main(int argc,char *argv[]){
 
     float *train_x = NULL;
