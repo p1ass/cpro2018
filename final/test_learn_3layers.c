@@ -3,7 +3,7 @@
 #include <time.h>
 
 //プロトタイプ宣言
-void learn3_layers(int train_count,int test_count,float * train_x,unsigned char * train_y,float * test_x, unsigned char * test_y );
+void learn_3layers(int train_count,int test_count,float * train_x,unsigned char * train_y,float * test_x, unsigned char * test_y );
 
 int main(){
 
