@@ -25,7 +25,7 @@ int main(){
     //初期化
     srand(time(NULL));
 
-    learn3(train_count,test_count,train_x,train_y,test_x,test_y);
+    learn_3layers(train_count,test_count,train_x,train_y,test_x,test_y);
     return 0;
 }
 // 3層での学習

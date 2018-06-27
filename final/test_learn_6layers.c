@@ -26,7 +26,7 @@ int main(){
     srand(time(NULL));
 
     //6層の学習
-    learn6  (train_count, test_count, train_x, train_y,test_x, test_y );
+    learn_6layers  (train_count, test_count, train_x, train_y,test_x, test_y );
 
     return 0;
 }
