@@ -1,12 +1,17 @@
+/*
+Author : Naoki Kishi (KUEE 2T13)
+GitHub URL : https://github.com/naoki-kishi/cpro2018
+*/
+
 #include "nn.h"
-#include "util.h"
+#include "nn_module.h"
 #include <time.h>
 
 //プロトタイプ宣言
 void learn_6layers(int train_count,int test_count,float * train_x,unsigned char * train_y,float * test_x, unsigned char * test_y, char *argv[]);
 
 /*
-第1~3引数 : FC1~FC3のパラメータの保存先 
+第1~3引数 : FC1~FC3のパラメータの保存先
 */
 int main(int argc,char *argv[]){
 
@@ -65,7 +70,6 @@ void learn_6layers(int train_count,int test_count,float * train_x,unsigned char 
     int batch = 100;
     float h = 0.03;
     int i,j,k,l,m;
-    float acc = 0.0;
 
     //配列の初期化
     rand_init(784*50,A1);
@@ -127,19 +131,35 @@ void learn_6layers(int train_count,int test_count,float * train_x,unsigned char 
             add(10,dEdb3_av,b3);
         }
 
-        //テストデータでの推論
+        //訓練データでの推論
         int sum = 0;
         float loss_sum = 0;
-        for(m=0 ; m<test_count ; m++) {
-            if(inference6(A1, A2, A3, b1, b2, b3, test_x + m*784,y) == test_y[m]) {
+        float acc = 0.0;
+        for(m=0 ; m<train_count ; m++) {
+            if(inference6(A1, A2, A3, b1, b2, b3, train_x + m*784,y) == train_y[m]) {
                 sum++;
             }
-            loss_sum += cross_entropy_error(y,test_y[m]);
+            loss_sum += cross_entropy_error(y,train_y[m]);
         }
-        acc = sum * 100.0 / test_count;
+        acc = sum * 100.0 / train_count;
 
-        printf("Accuracy Val : %f ％ \n",acc);
-        printf("Loss  Val : %f\n",loss_sum/test_count);
+        printf("Accuracy : %f ％ \n",acc);
+        printf("Loss  Average: %f\n",loss_sum/train_count);
+
+        //テストデータでの推論
+        int sum_test = 0;
+        float loss_sum_test = 0;
+        float acc_test = 0.0;
+        for(m=0 ; m<test_count ; m++) {
+            if(inference6(A1, A2, A3, b1, b2, b3, test_x + m*784,y) == test_y[m]) {
+                sum_test++;
+            }
+            loss_sum_test += cross_entropy_error(y,test_y[m]);
+        }
+        acc_test = sum_test * 100.0 / test_count;
+
+        printf("Accuracy Val : %f ％ \n",acc_test);
+        printf("Loss  Average Val : %f\n",loss_sum_test/test_count);
     }
 
     //パラメータを保存

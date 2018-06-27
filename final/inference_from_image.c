@@ -1,8 +1,17 @@
+/*
+Author : Naoki Kishi (KUEE 2T13)
+GitHub URL : https://github.com/naoki-kishi/cpro2018
+*/
+
 #include "nn.h"
-#include "util.h"
+#include "nn_module.h"
 #include <time.h>
 
-int main(){
+/*
+第1~3引数 : FC1~FC3のパラメータの読み込み先
+第4引数 : 推論する画像
+*/
+int main(int argc, char *argv[]){
 
     float *train_x = NULL;
     unsigned char *train_y = NULL;
@@ -29,27 +38,17 @@ int main(){
     float *y = malloc(sizeof(float) * 10);
 
     //パラメータを保存
-    load("fc1.dat", 50, 784, A1, b1);
-    load("fc2.dat", 100, 50, A2, b2);
-    load("fc3.dat", 10, 100, A3, b3);
+    load(argv[1], 50, 784, A1, b1);
+    load(argv[2], 100, 50, A2, b2);
+    load(argv[3], 10, 100, A3, b3);
 
-    //テストデータでの推論
-    int i;
-    int sum = 0;
-    float loss_sum = 0;
-    float acc= 0.0;
+    //画像を読み込む
+    float *x = load_mnist_bmp(argv[4]);
 
-    for(i=0 ; i<test_count ; i++) {
-        if(inference6(A1, A2, A3, b1, b2, b3, test_x + i*784,y) == test_y[i]) {
-            sum++;
-        }
-        loss_sum += cross_entropy_error(y,test_y[i]);
+    //読み込んだ画像で推論
+    int  predict = 0;
+    predict = inference6(A1, A2, A3, b1, b2, b3, x,y);
 
-    }
-    acc = sum * 100.0 / test_count;
-
-    printf("Accuracy : %f ％ \n",acc);
-    printf("Loss Average : %f\n",loss_sum/test_count);
-
+    printf("読み込んだ画像は%dです。\n",predict);
     return 0;
 }
