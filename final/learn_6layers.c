@@ -15,6 +15,12 @@ void learn_6layers(int train_count,int test_count,float * train_x,unsigned char 
 */
 int main(int argc,char *argv[]){
 
+    //パラメータの保存先が指定されていない場合エラーを返す
+    if (argc <4){
+        printf("データの保存先を引数で設定してください。\n");
+        return -1;
+    }
+
     float *train_x = NULL;
     unsigned char *train_y = NULL;
     int train_count = -1;

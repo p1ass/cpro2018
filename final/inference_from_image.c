@@ -13,6 +13,11 @@ GitHub URL : https://github.com/naoki-kishi/cpro2018
 */
 int main(int argc, char *argv[]){
 
+    //パラメータの保存先が指定されていない場合エラーを返す
+    if (argc <5){
+        printf("データの保存先を引数で設定してください。\n");
+        return -1;
+    }
     float *train_x = NULL;
     unsigned char *train_y = NULL;
     int train_count = -1;
