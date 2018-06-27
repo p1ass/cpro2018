@@ -16,3 +16,5 @@ void add(int n, const float *x, float *o);
 void scale(int n, float x, float *o);
 void init(int n, float x, float *o);
 void rand_init(int n, float *o);
+void save(const char * filename, int m, int n, const float * A, const float * b);
+void load(const char * filename, int m, int n, float * A, float * b);

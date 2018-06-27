@@ -25,7 +25,9 @@ int main(){
     //初期化
     srand(time(NULL));
 
-    learn6(train_count, test_count, train_x, train_y,test_x, test_y );
+    //6層の学習
+    learn6  (train_count, test_count, train_x, train_y,test_x, test_y );
+
     return 0;
 }
 
@@ -145,4 +147,9 @@ void learn6(int train_count,int test_count,float * train_x,unsigned char * train
         printf("Accuracy : %f ％ \n",acc);
         printf("Loss Average : %f\n",loss_sum/test_count);
     }
+
+    //パラメータを保存
+    save("fc1.dat", 50, 784, A1, b1);
+    save("fc2.dat", 100, 50, A2, b2);
+    save("fc3.dat", 10, 100, A3, b3);
 }

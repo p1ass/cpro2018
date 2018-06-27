@@ -201,6 +201,8 @@ void backward3(const float *A, const float *b, const float *x, unsigned char t, 
 
 }
 
+
+//6層の誤差逆伝播
 void backward6(const float *A1,const float *A2,const float *A3, const float *b1,  const float *b2, const float *b3, const float *x, unsigned char t, float *y,
     float *dEdA1,float *dEdA2,float *dEdA3, float *dEdb1,float *dEdb2,float *dEdb3){
 
@@ -242,6 +244,7 @@ void backward6(const float *A1,const float *A2,const float *A3, const float *b1,
     free(before_relu1);free(before_relu2);
 }
 
+//xの配列をシャッフルする
 void shuffle(int n, int *x){
     int i, j;
 
@@ -258,6 +261,7 @@ float cross_entropy_error(const float * y, int t){
     return -1 *log(y[t] + 1e-7);
 }
 
+//xを足す
 void add(int n, const float *x, float *o){
     int i;
 
@@ -266,6 +270,7 @@ void add(int n, const float *x, float *o){
     }
 }
 
+//x倍する
 void scale(int n, float x, float *o){
     int i;
 
@@ -274,6 +279,7 @@ void scale(int n, float x, float *o){
     }
 }
 
+//xで初期化
 void init(int n, float x, float *o){
     int i;
 
@@ -282,10 +288,33 @@ void init(int n, float x, float *o){
     }
 }
 
+//[-1:1]の範囲で初期化
 void rand_init(int n, float *o){
     int i;
 
     for (i = 0; i < n; i++){
         o[i] = ((float)rand() / ((float)RAND_MAX + 1)) * 2 - 1 ;
     }
+}
+
+//一層分のパラメータを保存
+void save(const char * filename, int m, int n, const float * A, const float * b){
+    FILE *fp;
+    fp = fopen(filename,"w");
+
+    fwrite(A, sizeof(float), m*n, fp);
+    fwrite(b, sizeof(float), m, fp);
+
+    fclose(fp);
+}
+
+//一層分のパラメータを読み込む
+void load(const char * filename, int m, int n, float * A, float * b){
+    FILE *fp;
+    fp = fopen(filename,"r");
+
+    fread(A, sizeof(float), m*n, fp);
+    fread(b, sizeof(float), m, fp);
+
+    fclose(fp);
 }
