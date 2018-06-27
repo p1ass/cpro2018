@@ -3,7 +3,7 @@
 #include <time.h>
 
 //プロトタイプ宣言
-void learn6(int train_count,int test_count,float * train_x,unsigned char * train_y,float * test_x, unsigned char * test_y );
+void learn_6layers(int train_count,int test_count,float * train_x,unsigned char * train_y,float * test_x, unsigned char * test_y );
 
 int main(){
 
@@ -31,7 +31,7 @@ int main(){
     return 0;
 }
 
-void learn6(int train_count,int test_count,float * train_x,unsigned char * train_y,float * test_x, unsigned char * test_y ){
+void learn_6layers(int train_count,int test_count,float * train_x,unsigned char * train_y,float * test_x, unsigned char * test_y ){
     float *y = malloc(sizeof(float) * 10);
 
     float *dEdA1 = malloc(sizeof(float) * 784 * 50);

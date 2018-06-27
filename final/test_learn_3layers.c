@@ -3,7 +3,7 @@
 #include <time.h>
 
 //プロトタイプ宣言
-void learn3(int train_count,int test_count,float * train_x,unsigned char * train_y,float * test_x, unsigned char * test_y );
+void learn3_layers(int train_count,int test_count,float * train_x,unsigned char * train_y,float * test_x, unsigned char * test_y );
 
 int main(){
 
@@ -24,12 +24,12 @@ int main(){
 
     //初期化
     srand(time(NULL));
-    
+
     learn3(train_count,test_count,train_x,train_y,test_x,test_y);
     return 0;
 }
 // 3層での学習
-void learn3(int train_count,int test_count,float * train_x,unsigned char * train_y,float * test_x, unsigned char * test_y ){
+void learn_3layers(int train_count,int test_count,float * train_x,unsigned char * train_y,float * test_x, unsigned char * test_y ){
     float *y = malloc(sizeof(float) * 10);
     float *dEdA = malloc(sizeof(float) * 784 * 10);
     float *dEdb = malloc(sizeof(float) * 10);
