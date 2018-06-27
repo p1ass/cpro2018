@@ -7,8 +7,7 @@ GitHub URL : https://github.com/naoki-kishi/cpro2018
 #include <stdlib.h>
 #include <math.h>
 
-
-//行列を表示
+//m*n行列xを表示
 void print(int m, int n, const float *x){
     int i, j;
 
@@ -20,7 +19,7 @@ void print(int m, int n, const float *x){
     }
 }
 
-//xをyにコピーする
+//m*n行列xをyにコピーする
 void copy(int m, int n, const float *x, float *y){
     int i, j;
     for (i = 0; i < m; i++){
@@ -30,7 +29,7 @@ void copy(int m, int n, const float *x, float *y){
     }
 }
 
-//y = A*x +b を計算する
+//m*n行列Aを用いてy = A*x +b を計算する
 void fc(int m, int n, const float *x, const float *A, const float *b, float *y){
     int i, j;
 
@@ -42,7 +41,7 @@ void fc(int m, int n, const float *x, const float *A, const float *b, float *y){
     }
 }
 
-//relu演算を行う y = relu(x)
+//m列ベクトルのxに対して、relu演算を行う y = relu(x)
 void relu(int m, const float *x, float *y){
     int i;
 
@@ -56,7 +55,7 @@ void relu(int m, const float *x, float *y){
     }
 }
 
-//softmax
+//m行のベクトルxに対して、y = softmax(x)
 void softmax(int m, const float *x, float *y){
     int i;
     float max = x[0]; //xの最大値
@@ -82,7 +81,7 @@ void softmax(int m, const float *x, float *y){
     }
 }
 
-//3層による推論
+//3層による推論を行い、得られた結果[0:9]を返す
 int inference3(const float *A, const float *b, const float *x,float * y){
     int m = 10;
     int n = 784;
@@ -101,11 +100,10 @@ int inference3(const float *A, const float *b, const float *x,float * y){
             index = i;
         }
     }
-    // free(y);
     return index;
 }
 
-//6層による推論
+//6層による推論を行い、得られた結果[0:9]を返す
 int inference6(const float *A1,const float *A2,const float *A3, const float *b1,  const float *b2, const float *b3, const float *x,float * y){
 
     float * y1 = malloc(sizeof(float) * 50);
@@ -132,7 +130,7 @@ int inference6(const float *A1,const float *A2,const float *A3, const float *b1,
     return index;
 }
 
-//softmaxの逆誤差伝播
+//softmaxの逆誤差伝播を行う
 void softmaxwithloss_bwd(int m, const float *y, unsigned char t, float *dEdx){
     float answers[10] = {0};
     int i = 0;
@@ -147,7 +145,7 @@ void softmaxwithloss_bwd(int m, const float *y, unsigned char t, float *dEdx){
     }
 }
 
-//reluの逆誤差伝播
+//reluの逆誤差伝播を行う
 void relu_bwd(int m, const float *x, const float *dEdy, float *dEdx){
     int i = 0;
     for (i = 0; i < m; i++){
@@ -160,7 +158,7 @@ void relu_bwd(int m, const float *x, const float *dEdy, float *dEdx){
     }
 }
 
-//FC層の逆誤差伝播
+//FC層の逆誤差伝播を行う
 void fc_bwd(int m, int n, const float *x, const float *dEdy, const float *A, float *dEdA, float *dEdb, float *dEdx){
    int i, j = 0;
 
@@ -182,8 +180,7 @@ void fc_bwd(int m, int n, const float *x, const float *dEdy, const float *A, flo
    }
 }
 
-
-//3層の逆誤差伝播
+//3層の逆誤差伝播を行う
 void backward3(const float *A, const float *b, const float *x, unsigned char t, float *y, float *dEdA, float *dEdb){
     int m = 10;
     int n = 784;
@@ -203,11 +200,9 @@ void backward3(const float *A, const float *b, const float *x, unsigned char t, 
     softmaxwithloss_bwd(m, y, t, y1);
     relu_bwd(m, before_relu, y1, y1);
     fc_bwd(m, n, before_fc, y1, A, dEdA, dEdb, y0);
-
 }
 
-
-//6層の誤差逆伝播
+//6層の逆誤差伝播を行う
 void backward6(const float *A1,const float *A2,const float *A3, const float *b1,  const float *b2, const float *b3, const float *x, unsigned char t, float *y,
     float *dEdA1,float *dEdA2,float *dEdA3, float *dEdb1,float *dEdb2,float *dEdb3){
 
@@ -225,13 +220,9 @@ void backward6(const float *A1,const float *A2,const float *A3, const float *b1,
     //順伝播
     copy(1,784,x,before_fc1);
     fc(50, 784, x, A1, b1, before_relu1);
-    // copy(1,50,y1,before_relu1);
     relu(50, before_relu1, before_fc2);
-    // copy(1,50,y1,before_fc2);
     fc(100, 50, before_fc2, A2, b2, before_relu2);
-    // copy(1,100,before_relu2,before_relu2);
     relu(100, before_relu2, before_fc3);
-    // copy(1,100,y2,before_fc3);
     fc(10, 100, before_fc3, A3, b3, y);
     softmax(10, y, y);
 
@@ -249,10 +240,9 @@ void backward6(const float *A1,const float *A2,const float *A3, const float *b1,
     free(before_relu1);free(before_relu2);
 }
 
-//xの配列をシャッフルする
+//n行ベクトルxの配列をシャッフルする
 void shuffle(int n, int *x){
     int i, j;
-
     for (i = 0; i < n; i++){
         j = (int)(rand()*(  n+1.0)/(1.0+RAND_MAX));
         int tmp_xi = x[i];
@@ -266,37 +256,33 @@ float cross_entropy_error(const float * y, int t){
     return -1 *log(y[t] + 1e-7);
 }
 
-//xを足す
+//n行ベクトルxをoに足す
 void add(int n, const float *x, float *o){
     int i;
-
     for (i = 0; i < n; i++){
         o[i] += x[i];
     }
 }
 
-//x倍する
+//n行ベクトルoにxをかける
 void scale(int n, float x, float *o){
     int i;
-
     for (i = 0; i < n; i++){
         o[i] *= x;
     }
 }
 
-//xで初期化
+//n行ベクトルoをxで全要素を初期化
 void init(int n, float x, float *o){
     int i;
-
     for (i = 0; i < n; i++){
         o[i] = x;
     }
 }
 
-//[-1:1]の範囲で初期化
+//[-1:1]の範囲でn行ベクトルoを初期化
 void rand_init(int n, float *o){
     int i;
-
     for (i = 0; i < n; i++){
         o[i] = ((float)rand() / ((float)RAND_MAX + 1)) * 2 - 1 ;
     }
