@@ -3,9 +3,9 @@
 #include <time.h>
 
 //プロトタイプ宣言
-void learn_6layers(int train_count,int test_count,float * train_x,unsigned char * train_y,float * test_x, unsigned char * test_y );
+void learn_6layers(int train_count,int test_count,float * train_x,unsigned char * train_y,float * test_x, unsigned char * test_y, char *argv[]);
 
-int main(){
+int main(int argc,char *argv[]){
 
     float *train_x = NULL;
     unsigned char *train_y = NULL;
@@ -26,14 +26,14 @@ int main(){
     srand(time(NULL));
 
     //6層の学習
-    learn_6layers  (train_count, test_count, train_x, train_y,test_x, test_y );
+    learn_6layers  (train_count, test_count, train_x, train_y,test_x, test_y,argv);
 
     return 0;
 }
 
-void learn_6layers(int train_count,int test_count,float * train_x,unsigned char * train_y,float * test_x, unsigned char * test_y ){
-    float *y = malloc(sizeof(float) * 10);
+void learn_6layers(int train_count,int test_count,float * train_x,unsigned char * train_y,float * test_x, unsigned char * test_y, char *argv[]){
 
+    //初期化
     float *dEdA1 = malloc(sizeof(float) * 784 * 50);
     float *dEdA2 = malloc(sizeof(float) * 50 * 100);
     float *dEdA3 = malloc(sizeof(float) * 100 * 10);
@@ -41,7 +41,6 @@ void learn_6layers(int train_count,int test_count,float * train_x,unsigned char 
     float *dEdb2 = malloc(sizeof(float) * 100);
     float *dEdb3 = malloc(sizeof(float) * 10);
 
-    //平均
     float *dEdA1_av = malloc(sizeof(float) * 784 * 50);
     float *dEdA2_av = malloc(sizeof(float) * 50 * 100);
     float *dEdA3_av = malloc(sizeof(float) * 100 * 10);
@@ -55,6 +54,7 @@ void learn_6layers(int train_count,int test_count,float * train_x,unsigned char 
     float *b1 = malloc(sizeof(float)*50);
     float *b2 = malloc(sizeof(float)*100);
     float *b3 = malloc(sizeof(float)*10);
+    float *y = malloc(sizeof(float) * 10);
 
     //変数初期化
     int * index = malloc(sizeof(int)*train_count);
@@ -75,22 +75,17 @@ void learn_6layers(int train_count,int test_count,float * train_x,unsigned char 
     //インデックスを作成し、並び替え
     for(l=0 ; l<train_count ; l+=1) {
         index[l] = l;
-        // printf("%d\n",l);
     }
 
     //エポックを回す
     for(i=0;i<epoch;i++){
         printf("-----------------------------------------------------\n");
-
         printf("Epoch %d/%d\n", i+1,epoch);
-
-
 
         shuffle(train_count, index);
 
         //ミニバッチ
         for(j=0;j<train_count /batch;j++){
-            // printf("Mini batch %d\n",j+1);
             //平均勾配を初期化
             init(784*50,0,dEdA1_av);
             init(50*100,0,dEdA2_av);
@@ -101,9 +96,9 @@ void learn_6layers(int train_count,int test_count,float * train_x,unsigned char 
 
             //一つ一つの勾配を計算する
             for(k=0;k<batch;k++){
-                // printf("start backward6\n");
                 backward6(A1, A2, A3, b1, b2, b3, train_x+ 784*index[j*batch+k] ,train_y[index[j*batch+k]], y, dEdA1, dEdA2, dEdA3, dEdb1, dEdb2, dEdb3);
 
+                //平均に加える
                 add(784*50,dEdA1,dEdA1_av);
                 add(50*100,dEdA2,dEdA2_av);
                 add(100*10,dEdA3,dEdA3_av);
@@ -119,7 +114,6 @@ void learn_6layers(int train_count,int test_count,float * train_x,unsigned char 
             scale(50,-h/batch,dEdb1_av);
             scale(100,-h/batch,dEdb2_av);
             scale(10,-h/batch,dEdb3_av);
-            // print(784,50,dEdA1_av);
 
             //係数A,bを更新
             add(784*50,dEdA1_av,A1);
@@ -128,8 +122,6 @@ void learn_6layers(int train_count,int test_count,float * train_x,unsigned char 
             add(50,dEdb1_av,b1);
             add(100,dEdb2_av,b2);
             add(10,dEdb3_av,b3);
-
-
         }
 
         //テストデータでの推論
@@ -140,16 +132,15 @@ void learn_6layers(int train_count,int test_count,float * train_x,unsigned char 
                 sum++;
             }
             loss_sum += cross_entropy_error(y,test_y[m]);
-
         }
         acc = sum * 100.0 / test_count;
 
-        printf("Accuracy : %f ％ \n",acc);
-        printf("Loss Average : %f\n",loss_sum/test_count);
+        printf("Accuracy Val : %f ％ \n",acc);
+        printf("Loss  Val : %f\n",loss_sum/test_count);
     }
 
     //パラメータを保存
-    save("fc1.dat", 50, 784, A1, b1);
-    save("fc2.dat", 100, 50, A2, b2);
-    save("fc3.dat", 10, 100, A3, b3);
+    save(argv[1], 50, 784, A1, b1);
+    save(argv[2], 100, 50, A2, b2);
+    save(argv[3], 10, 100, A3, b3);
 }

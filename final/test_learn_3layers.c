@@ -100,7 +100,7 @@ void learn_3layers(int train_count,int test_count,float * train_x,unsigned char 
         }
         acc = sum * 100.0 / test_count;
 
-        printf("Accuracy : %f ％ \n",acc);
-        printf("Loss Average : %f\n",loss_sum/test_count);
+        printf("Accuracy Val : %f ％ \n",acc);
+        printf("Loss Val : %f\n",loss_sum/test_count);
     }
 }
