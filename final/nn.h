@@ -57,12 +57,12 @@ float * load_mnist_image(const char * filename, int * width, int * height, int *
   int ni = ntohl(header[1]);
   int nr = ntohl(header[2]);
   int nc = ntohl(header[3]);
-  
+
   assert(nr == 28);
   assert(nc == 28);
 
   const int N = nr*nc*ni;
-  
+
   float * buf = malloc(N*sizeof(float));
   assert(NULL != buf);
 
@@ -78,11 +78,11 @@ float * load_mnist_image(const char * filename, int * width, int * height, int *
     buf[i] = ((float)(img[i])) / 255.0f;
   }
   free(img);
-  
+
   *width = nc;
   *height = nr;
   *count = ni;
-  
+
   return buf;
 }
 
@@ -100,14 +100,14 @@ unsigned char * load_mnist_label(const char * filename, int * count) {
 
   unsigned char * buf = malloc(ni);
   assert(NULL != buf);
-  
+
   r = fread(buf, ni, 1, fp);
   assert(r==1);
 
   fclose(fp);
 
   *count = ni;
-  
+
   return buf;
 }
 
@@ -116,26 +116,26 @@ void load_mnist(float ** train_x, unsigned char ** train_y, int * train_count,
                 float ** test_x, unsigned char ** test_y, int * test_count,
                 int * width, int * height) {
   assert(train_x != NULL);
-  *train_x = load_mnist_image("train-images-idx3-ubyte", width, height, train_count);
+  *train_x = load_mnist_image("./dataset/train-images-idx3-ubyte", width, height, train_count);
   assert(*train_x != NULL);
   assert(*width == 28);
   assert(*height == 28);
   assert(*train_count == 60000);
 
   assert(train_y != NULL);
-  *train_y = load_mnist_label("train-labels-idx1-ubyte", train_count);
+  *train_y = load_mnist_label("./dataset/train-labels-idx1-ubyte", train_count);
   assert(*train_y != NULL);
   assert(*train_count == 60000);
 
   assert(test_x != NULL);
-  *test_x = load_mnist_image("t10k-images-idx3-ubyte", width, height, test_count);
+  *test_x = load_mnist_image("./dataset/t10k-images-idx3-ubyte", width, height, test_count);
   assert(*test_x != NULL);
   assert(*width == 28);
   assert(*height == 28);
   assert(*test_count == 10000);
 
   assert(test_y != NULL);
-  *test_y = load_mnist_label("t10k-labels-idx1-ubyte", test_count);
+  *test_y = load_mnist_label("./dataset/t10k-labels-idx1-ubyte", test_count);
   assert(*test_y != NULL);
   assert(*test_count == 10000);
 }
@@ -315,7 +315,7 @@ void load_mnist(float ** train_x, unsigned char ** train_y, int * train_count,
       2.12  (2016-04-02) fix typo in 2.11 PSD fix that caused crashes
       2.11  (2016-04-02) 16-bit PNGS; enable SSE2 in non-gcc x64
                          RGB-format JPEG; remove white matting in PSD;
-                         allocate large structures on the stack; 
+                         allocate large structures on the stack;
                          correct channel count for PNG & BMP
       2.10  (2016-01-22) avoid warning introduced in 2.09
       2.09  (2016-01-16) 16-bit TGA; comments in PNM files; STBI_REALLOC_SIZED
@@ -5149,7 +5149,7 @@ static void *stbi__bmp_parse_header(stbi__context *s, stbi__bmp_data *info)
    info->offset = stbi__get32le(s);
    info->hsz = hsz = stbi__get32le(s);
    info->mr = info->mg = info->mb = info->ma = 0;
-   
+
    if (hsz != 12 && hsz != 40 && hsz != 56 && hsz != 108 && hsz != 124) return stbi__errpuc("unknown BMP", "BMP type not supported: unknown");
    if (hsz == 12) {
       s->img_x = stbi__get16le(s);
@@ -5234,7 +5234,7 @@ static void *stbi__bmp_load(stbi__context *s, int *x, int *y, int *comp, int req
    stbi__bmp_data info;
    STBI_NOTUSED(ri);
 
-   info.all_a = 255;   
+   info.all_a = 255;
    if (stbi__bmp_parse_header(s, &info) == NULL)
       return NULL; // error code already set
 
@@ -5353,7 +5353,7 @@ static void *stbi__bmp_load(stbi__context *s, int *x, int *y, int *comp, int req
          stbi__skip(s, pad);
       }
    }
-   
+
    // if alpha channel is all 0s, replace with all 255s
    if (target == 4 && all_a == 0)
       for (i=4*s->img_x*s->img_y-1; i >= 0; i -= 4)
@@ -6798,7 +6798,7 @@ static int stbi__bmp_info(stbi__context *s, int *x, int *y, int *comp)
    void *p;
    stbi__bmp_data info;
 
-   info.all_a = 255;   
+   info.all_a = 255;
    p = stbi__bmp_parse_header(s, &info);
    stbi__rewind( s );
    if (p == NULL)
@@ -7371,7 +7371,7 @@ CREDITS:
       Filip Wasil
       Thatcher Ulrich
       github:poppolopoppo
-      
+
 LICENSE
 
 This software is dual-licensed to the public domain and under the following
@@ -8327,10 +8327,10 @@ float * load_mnist_bmp(const char * filename, ...) {
   int height;
   int nchannels;
   unsigned char * img8 = stbi_load(filename, &width, &height, &nchannels, 0);
-  
+
   float * imgf = malloc(sizeof(float)*28*28);
   assert(NULL != imgf);
-  
+
   int x, y;
   const float dx = (width)/28.0;
   const float dy = (height)/28.0;
@@ -8416,13 +8416,13 @@ BITMAPINFOHEADER bmp_info(int width, int height, int color) {
 void save_mnist_bmp(const float * x, const char * filename, ...) {
   const int width = 28;
   const int height = 28;
-  
+
   char buf[PATH_MAX];
   va_list ap;
   va_start(ap, filename);
   vsnprintf(buf, sizeof(buf), filename, ap);
   va_end(ap);
-  
+
   assert(width % 4 == 0);
 
   FILE * fp = fopen(buf, "wb");

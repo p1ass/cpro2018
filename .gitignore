@@ -1,6 +1,7 @@
 *
 !*/
 !*.*
+!/final/dataset/*
 *.exe
 *.pdf
 *.o
