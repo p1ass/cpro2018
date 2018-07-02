@@ -57,15 +57,6 @@ void learn_6layers(int train_count,int test_count,float * train_x,unsigned char 
     float dEda1 = 0.0;
     float dEda2 = 0.0;
 
-    float *before_dEdA1 = malloc(sizeof(float) * 784 * 50);
-    float *before_dEdA2 = malloc(sizeof(float) * 50 * 100);
-    float *before_dEdA3 = malloc(sizeof(float) * 100 * 10);
-    float *before_dEdb1 = malloc(sizeof(float) * 50);
-    float *before_dEdb2 = malloc(sizeof(float) * 100);
-    float *before_dEdb3 = malloc(sizeof(float) * 10);
-    float before_dEda1 = 0.0;
-    float before_dEda2 = 0.0;
-
     float *dEdA1_av = malloc(sizeof(float) * 784 * 50);
     float *dEdA2_av = malloc(sizeof(float) * 50 * 100);
     float *dEdA3_av = malloc(sizeof(float) * 100 * 10);
@@ -83,6 +74,9 @@ void learn_6layers(int train_count,int test_count,float * train_x,unsigned char 
     float *b3 = malloc(sizeof(float)*10);
     float *y = malloc(sizeof(float) * 10);
 
+    float before_dEda1 = 0.0;
+    float before_dEda2 = 0.0;
+
     float a1 = 0.25;
     float a2 = 0.25;
 
@@ -96,18 +90,13 @@ void learn_6layers(int train_count,int test_count,float * train_x,unsigned char 
     float alpha = 0.9;
 
     //配列の初期化
-    // rand_init(784*50,A1);
-    // rand_init(50*100,A2);
-    // rand_init(100*10,A3);
     init(50,0,b1);
     init(100,0,b2);
     init(10,0,b3);
     rand_init_by_normal_dist(784*50,A1,0,sqrt(2.0/(784*(1+a1*2))));
     rand_init_by_normal_dist(50*100,A2,0,sqrt(2.0/(50*(1+a1*2))));
     rand_init_by_normal_dist(100*10,A3,0,sqrt(2.0/(100*(1+a1*2))));
-    // rand_init_by_normal_dist(50,b1,0,sqrt(2.0/50));
-    // rand_init_by_normal_dist(100,b2,0,sqrt(2.0/100));
-    // rand_init_by_normal_dist(10,b3,0,sqrt(2.0/10));
+
 
     //インデックスを作成し、並び替え
     for(l=0 ; l<train_count ; l+=1) {
@@ -120,6 +109,8 @@ void learn_6layers(int train_count,int test_count,float * train_x,unsigned char 
         printf("Epoch %d/%d\n", i+1,epoch);
 
         shuffle(train_count, index);
+        before_dEda1 = 0.0;
+        before_dEda2 = 0.0;
 
         //ミニバッチ
         for(j=0;j<train_count /batch;j++){
@@ -131,7 +122,8 @@ void learn_6layers(int train_count,int test_count,float * train_x,unsigned char 
             init(100,0,dEdb2_av);
             init(10,0,dEdb3_av);
             dEda1_av = 0.0;
-            dEda2_av = 0.0  ;
+            dEda2_av = 0.0;
+
 
             //一つ一つの勾配を計算する
             for(k=0;k<batch;k++){
@@ -159,26 +151,12 @@ void learn_6layers(int train_count,int test_count,float * train_x,unsigned char 
             dEda2_av *= a_st_rate/batch;
 
             //係数A,bを更新
-            scale(784*50,alpha,before_dEdA1);
-            scale(50*100,alpha,before_dEdA2);
-            scale(50*10,alpha,before_dEdA3);
-            scale(50,alpha,before_dEdb1);
-            scale(100,alpha,before_dEdb2);
-            scale(10,alpha,before_dEdb3);
-
-            add(784*50,dEdA1_av,before_dEdA1);
-            add(50*100,dEdA2_av,before_dEdA2);
-            add(50*10,dEdA3_av,before_dEdA3);
-            add(50,dEdb1_av,before_dEdb1);
-            add(100,dEdb2_av,before_dEdb2);
-            add(10,dEdb3_av,before_dEdb3);
-
-            add(784*50,before_dEdA1,A1);
-            add(50*100,before_dEdA2,A2);
-            add(100*10,before_dEdA3,A3);
-            add(50,before_dEdb1,b1);
-            add(100,before_dEdb2,b2);
-            add(10,before_dEdb3,b3);
+            add(784*50,dEdA1_av,A1);
+            add(50*100,dEdA2_av,A2);
+            add(100*10,dEdA3_av,A3);
+            add(50,dEdb1_av,b1);
+            add(100,dEdb2_av,b2);
+            add(10,dEdb3_av,b3);
             before_dEda1 = dEda1_av + alpha * before_dEda1;
             before_dEda2 = dEda2_av + alpha * before_dEda2;
             a1 += before_dEda1;
