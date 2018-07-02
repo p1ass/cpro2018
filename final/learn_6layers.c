@@ -54,6 +54,12 @@ void learn_6layers(int train_count,int test_count,float * train_x,unsigned char 
     float *dEdb1 = malloc(sizeof(float) * 50);
     float *dEdb2 = malloc(sizeof(float) * 100);
     float *dEdb3 = malloc(sizeof(float) * 10);
+    float *before_dEdA1 = malloc(sizeof(float) * 784 * 50);
+    float *before_dEdA2 = malloc(sizeof(float) * 50 * 100);
+    float *before_dEdA3 = malloc(sizeof(float) * 100 * 10);
+    float *before_dEdb1 = malloc(sizeof(float) * 50);
+    float *before_dEdb2 = malloc(sizeof(float) * 100);
+    float *before_dEdb3 = malloc(sizeof(float) * 10);
 
     float *dEdA1_av = malloc(sizeof(float) * 784 * 50);
     float *dEdA2_av = malloc(sizeof(float) * 50 * 100);
@@ -70,19 +76,15 @@ void learn_6layers(int train_count,int test_count,float * train_x,unsigned char 
     float *b3 = malloc(sizeof(float)*10);
     float *y = malloc(sizeof(float) * 10);
 
-    float a1,a2 = {0};
-
     //変数初期化
     int * index = malloc(sizeof(int)*train_count);
     int epoch = 50;
     int batch = 100;
-    float h = 0.03;
+    float h = 0.01;
     int i,j,k,l,m;
+    float alpha = 0.9;
 
     //配列の初期化
-    rand_init(784*50,A1);
-    rand_init(50*100,A2);
-    rand_init(100*10,A3);
     init(50,0,b1);
     init(100,0,b2);
     init(10,0,b3);
@@ -137,12 +139,26 @@ void learn_6layers(int train_count,int test_count,float * train_x,unsigned char 
             scale(10,-h/batch,dEdb3_av);
 
             //係数A,bを更新
-            add(784*50,dEdA1_av,A1);
-            add(50*100,dEdA2_av,A2);
-            add(100*10,dEdA3_av,A3);
-            add(50,dEdb1_av,b1);
-            add(100,dEdb2_av,b2);
-            add(10,dEdb3_av,b3);
+            scale(784*50,alpha,before_dEdA1);
+            scale(50*100,alpha,before_dEdA2);
+            scale(50*10,alpha,before_dEdA3);
+            scale(50,alpha,before_dEdb1);
+            scale(100,alpha,before_dEdb2);
+            scale(10,alpha,before_dEdb3);
+
+            add(784*50,dEdA1_av,before_dEdA1);
+            add(50*100,dEdA2_av,before_dEdA2);
+            add(50*10,dEdA3_av,before_dEdA3);
+            add(50,dEdb1_av,before_dEdb1);
+            add(100,dEdb2_av,before_dEdb2);
+            add(10,dEdb3_av,before_dEdb3);
+
+            add(784*50,before_dEdA1,A1);
+            add(50*100,before_dEdA2,A2);
+            add(100*10,before_dEdA3,A3);
+            add(50,before_dEdb1,b1);
+            add(100,before_dEdb2,b2);
+            add(10,before_dEdb3,b3);
         }
 
         //訓練データでの推論
