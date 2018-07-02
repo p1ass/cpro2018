@@ -55,6 +55,8 @@ void learn_6layers(int train_count,int test_count,float * train_x,unsigned char 
     float *dEdb2 = malloc(sizeof(float) * 100);
     float *dEdb3 = malloc(sizeof(float) * 10);
     float *before_dEdA1 = malloc(sizeof(float) * 784 * 50);
+
+    //一つ前の変化量
     float *before_dEdA2 = malloc(sizeof(float) * 50 * 100);
     float *before_dEdA3 = malloc(sizeof(float) * 100 * 10);
     float *before_dEdb1 = malloc(sizeof(float) * 50);
@@ -92,15 +94,7 @@ void learn_6layers(int train_count,int test_count,float * train_x,unsigned char 
     rand_init_by_normal_dist(50*100,A2,0,sqrt(2.0/50));
     rand_init_by_normal_dist(100*10,A3,0,sqrt(2.0/100));
 
-    init(784*50,0,before_dEdA1);
-    init(50*100,0,before_dEdA2);
-    init(100*10,0,before_dEdA3);
-    init(50,0,before_dEdb1);
-    init(100,0,before_dEdb2);
-    init(10,0,before_dEdb3);
-    // rand_init_by_normal_dist(50,b1,0,sqrt(2.0/50));
-    // rand_init_by_normal_dist(100,b2,0,sqrt(2.0/100));
-    // rand_init_by_normal_dist(10,b3,0,sqrt(2.0/10));
+
 
     //インデックスを作成し、並び替え
     for(l=0 ; l<train_count ; l+=1) {
@@ -113,6 +107,14 @@ void learn_6layers(int train_count,int test_count,float * train_x,unsigned char 
         printf("Epoch %d/%d\n", i+1,epoch);
 
         shuffle(train_count, index);
+
+        //epochごとに初期化
+        init(784*50,0,before_dEdA1);
+        init(50*100,0,before_dEdA2);
+        init(100*10,0,before_dEdA3);
+        init(50,0,before_dEdb1);
+        init(100,0,before_dEdb2);
+        init(10,0,before_dEdb3);
 
         //ミニバッチ
         for(j=0;j<train_count /batch;j++){
@@ -145,7 +147,7 @@ void learn_6layers(int train_count,int test_count,float * train_x,unsigned char 
             scale(100,-h/batch,dEdb2_av);
             scale(10,-h/batch,dEdb3_av);
 
-            //係数A,bを更新
+            //係数A,bをMomentum SGDで更新
             scale(784*50,alpha,before_dEdA1);
             scale(50*100,alpha,before_dEdA2);
             scale(100*10,alpha,before_dEdA3);
