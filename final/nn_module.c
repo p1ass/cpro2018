@@ -172,21 +172,6 @@ void relu_bwd(int m, const float *x, const float *dEdy, float *dEdx){
     }
 }
 
-//reluの誤差逆伝播を行う
-void prelu_bwd(int m, const float *x, const float *dEdy, float *dEdx,const float a, float  dEda){
-    int i = 0;
-    dEda = 0.0;
-    for (i = 0; i < m; i++){
-        if (x[i] > 0){
-            dEdx[i] = dEdy[i];
-            dEda += 0.0;
-        }
-        else{
-            dEdx[i] = a;
-            dEda += dEdy[i] * x[i];
-        }
-    }
-}
 
 //FC層の誤差逆伝播を行う
 void fc_bwd(int m, int n, const float *x, const float *dEdy, const float *A, float *dEdA, float *dEdb, float *dEdx){

@@ -3,7 +3,6 @@ void print(int m,int n,const float *x);  //m*n行列xを表示
 void copy(int m, int n, const float *x, float *y);  //m*n行列xをyにコピーする
 void fc(int m, int n, const float *x, const float *A, const float *b, float *y);  //m*n行列Aを用いてy = A*x +b を計算する
 void relu(int n,const float *x, float *y);  //m列ベクトルのxに対して、relu演算を行う y = relu(x)
-void prelu(int n,const float *x, float *y,float a);  //m列ベクトルのxに対して、prelu演算を行う y = prelu(x)
 void softmax(int n,const float *x, float *y);  //m行のベクトルxに対して、y = softmax(x)
 int inference3(const float *A, const float *b, const float *x,float * y);  //3層による推論を行い、得られた結果[0:9]を返す
 int inference6(const float *A1,const float *A2,const float *A3, const float *b1,  const float *b2, const float *b3, const float *x,float * y);  //6層による推論を行い、得られた結果[0:9]を返す
