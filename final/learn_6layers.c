@@ -91,6 +91,13 @@ void learn_6layers(int train_count,int test_count,float * train_x,unsigned char 
     rand_init_by_normal_dist(784*50,A1,0,sqrt(2.0/784));
     rand_init_by_normal_dist(50*100,A2,0,sqrt(2.0/50));
     rand_init_by_normal_dist(100*10,A3,0,sqrt(2.0/100));
+
+    init(784*50,0,before_dEdA1);
+    init(50*100,0,before_dEdA2);
+    init(100*10,0,before_dEdA3);
+    init(50,0,before_dEdb1);
+    init(100,0,before_dEdb2);
+    init(10,0,before_dEdb3);
     // rand_init_by_normal_dist(50,b1,0,sqrt(2.0/50));
     // rand_init_by_normal_dist(100,b2,0,sqrt(2.0/100));
     // rand_init_by_normal_dist(10,b3,0,sqrt(2.0/10));
@@ -141,14 +148,14 @@ void learn_6layers(int train_count,int test_count,float * train_x,unsigned char 
             //係数A,bを更新
             scale(784*50,alpha,before_dEdA1);
             scale(50*100,alpha,before_dEdA2);
-            scale(50*10,alpha,before_dEdA3);
+            scale(100*10,alpha,before_dEdA3);
             scale(50,alpha,before_dEdb1);
             scale(100,alpha,before_dEdb2);
             scale(10,alpha,before_dEdb3);
 
             add(784*50,dEdA1_av,before_dEdA1);
             add(50*100,dEdA2_av,before_dEdA2);
-            add(50*10,dEdA3_av,before_dEdA3);
+            add(100*10,dEdA3_av,before_dEdA3);
             add(50,dEdb1_av,before_dEdb1);
             add(100,dEdb2_av,before_dEdb2);
             add(10,dEdb3_av,before_dEdb3);
