@@ -118,14 +118,14 @@ int inference3(const float *A, const float *b, const float *x,float * y){
 }
 
 //6層による推論を行い、得られた結果[0:9]を返す
-int inference6(const float *A1,const float *A2,const float *A3, const float *b1,  const float *b2, const float *b3, const float *x,float * y){
+int inference6(const float *A1,const float *A2,const float *A3, const float *b1,  const float *b2, const float *b3,float a1,float a2, const float *x,float * y){
 
     float * y1 = malloc(sizeof(float) * 50);
     float * y2 = malloc(sizeof(float) * 100);
     fc(50, 784, x, A1, b1, y1);
-    relu(50, y1, y1);
+    prelu(50, y1, y1,a1);
     fc(100, 50, y1, A2, b2, y2);
-    relu(100, y2, y2);
+    prelu(100, y2, y2,a2);
     fc(10, 100, y2, A3, b3, y);
     softmax(10, y, y);
 
@@ -173,17 +173,17 @@ void relu_bwd(int m, const float *x, const float *dEdy, float *dEdx){
 }
 
 //reluの誤差逆伝播を行う
-void prelu_bwd(int m, const float *x, const float *dEdy, float *dEdx,const float a, float  dEda){
+void prelu_bwd(int m, const float *x, const float *dEdy, float *dEdx, float a, float  *dEda){
     int i = 0;
-    dEda = 0.0;
+    *dEda = 0.0;
     for (i = 0; i < m; i++){
         if (x[i] > 0){
             dEdx[i] = dEdy[i];
-            dEda += 0.0;
+            // *dEda += 0.0;
         }
         else{
-            dEdx[i] = a;
-            dEda += dEdy[i] * x[i];
+            dEdx[i] = a * dEdy[i];
+            *dEda += dEdy[i] * x[i];
         }
     }
 }
@@ -233,8 +233,8 @@ void backward3(const float *A, const float *b, const float *x, unsigned char t, 
 }
 
 //6層の誤差逆伝播を行う
-void backward6(const float *A1,const float *A2,const float *A3, const float *b1,  const float *b2, const float *b3, const float *x, unsigned char t, float *y,
-    float *dEdA1,float *dEdA2,float *dEdA3, float *dEdb1,float *dEdb2,float *dEdb3){
+void backward6(const float *A1,const float *A2,const float *A3, const float *b1,  const float *b2, const float *b3,float a1,float a2, const float *x, unsigned char t, float *y,
+    float *dEdA1,float *dEdA2,float *dEdA3, float *dEdb1,float *dEdb2,float *dEdb3,float * dEda1,float * dEda2){
 
     float  * before_fc1 = malloc(sizeof(float) * 784);
     float  * before_fc2 = malloc(sizeof(float) * 50);
@@ -250,18 +250,18 @@ void backward6(const float *A1,const float *A2,const float *A3, const float *b1,
     //順伝播
     copy(1,784,x,before_fc1);
     fc(50, 784, x, A1, b1, before_relu1);
-    relu(50, before_relu1, before_fc2);
+    prelu(50, before_relu1, before_fc2,a1);
     fc(100, 50, before_fc2, A2, b2, before_relu2);
-    relu(100, before_relu2, before_fc3);
+    prelu(100, before_relu2, before_fc3,a2);
     fc(10, 100, before_fc3, A3, b3, y);
     softmax(10, y, y);
 
     //逆伝播
     softmaxwithloss_bwd(10, y, t, y3);
     fc_bwd(10, 100, before_fc3, y3, A3, dEdA3, dEdb3, y2);
-    relu_bwd(100, before_relu2, y2, y2);
+    prelu_bwd(100, before_relu2, y2, y2,a2,dEda2);
     fc_bwd(100, 50, before_fc2, y2, A2, dEdA2, dEdb2, y1);
-    relu_bwd(50, before_relu1, y1, y1);
+    prelu_bwd(50, before_relu1, y1, y1,a1,dEda1);
     fc_bwd(50, 784, before_fc1, y1, A1, dEdA1, dEdb1, y0);
 
     //メモリ解放
