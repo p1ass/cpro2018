@@ -54,6 +54,17 @@ void learn_6layers(int train_count,int test_count,float * train_x,unsigned char 
     float *dEdb1 = malloc(sizeof(float) * 50);
     float *dEdb2 = malloc(sizeof(float) * 100);
     float *dEdb3 = malloc(sizeof(float) * 10);
+    float dEda1 = 0.0;
+    float dEda2 = 0.0;
+
+    float *before_dEdA1 = malloc(sizeof(float) * 784 * 50);
+    float *before_dEdA2 = malloc(sizeof(float) * 50 * 100);
+    float *before_dEdA3 = malloc(sizeof(float) * 100 * 10);
+    float *before_dEdb1 = malloc(sizeof(float) * 50);
+    float *before_dEdb2 = malloc(sizeof(float) * 100);
+    float *before_dEdb3 = malloc(sizeof(float) * 10);
+    float before_dEda1 = 0.0;
+    float before_dEda2 = 0.0;
 
     float *dEdA1_av = malloc(sizeof(float) * 784 * 50);
     float *dEdA2_av = malloc(sizeof(float) * 50 * 100);
@@ -61,6 +72,8 @@ void learn_6layers(int train_count,int test_count,float * train_x,unsigned char 
     float *dEdb1_av = malloc(sizeof(float) * 50);
     float *dEdb2_av = malloc(sizeof(float) * 100);
     float *dEdb3_av = malloc(sizeof(float) * 10);
+    float dEda1_av = 0.0;
+    float dEda2_av = 0.0;
 
     float *A1 = malloc(sizeof(float)* 784*50);
     float *A2 = malloc(sizeof(float)* 50*100);
@@ -70,25 +83,28 @@ void learn_6layers(int train_count,int test_count,float * train_x,unsigned char 
     float *b3 = malloc(sizeof(float)*10);
     float *y = malloc(sizeof(float) * 10);
 
-    float a1,a2 = {0};
+    float a1 = 0.25;
+    float a2 = 0.25;
 
     //変数初期化
     int * index = malloc(sizeof(int)*train_count);
     int epoch = 50;
     int batch = 100;
-    float h = 0.03;
+    float h = 0.01;
+    float a_st_rate = 0.01;
     int i,j,k,l,m;
+    float alpha = 0.9;
 
     //配列の初期化
-    rand_init(784*50,A1);
-    rand_init(50*100,A2);
-    rand_init(100*10,A3);
+    // rand_init(784*50,A1);
+    // rand_init(50*100,A2);
+    // rand_init(100*10,A3);
     init(50,0,b1);
     init(100,0,b2);
     init(10,0,b3);
-    rand_init_by_normal_dist(784*50,A1,0,sqrt(2.0/784));
-    rand_init_by_normal_dist(50*100,A2,0,sqrt(2.0/50));
-    rand_init_by_normal_dist(100*10,A3,0,sqrt(2.0/100));
+    rand_init_by_normal_dist(784*50,A1,0,sqrt(2.0/(784*(1+a1*2))));
+    rand_init_by_normal_dist(50*100,A2,0,sqrt(2.0/(50*(1+a1*2))));
+    rand_init_by_normal_dist(100*10,A3,0,sqrt(2.0/(100*(1+a1*2))));
     // rand_init_by_normal_dist(50,b1,0,sqrt(2.0/50));
     // rand_init_by_normal_dist(100,b2,0,sqrt(2.0/100));
     // rand_init_by_normal_dist(10,b3,0,sqrt(2.0/10));
@@ -114,10 +130,12 @@ void learn_6layers(int train_count,int test_count,float * train_x,unsigned char 
             init(50,0,dEdb1_av);
             init(100,0,dEdb2_av);
             init(10,0,dEdb3_av);
+            dEda1_av = 0.0;
+            dEda2_av = 0.0  ;
 
             //一つ一つの勾配を計算する
             for(k=0;k<batch;k++){
-                backward6(A1, A2, A3, b1, b2, b3, train_x+ 784*index[j*batch+k] ,train_y[index[j*batch+k]], y, dEdA1, dEdA2, dEdA3, dEdb1, dEdb2, dEdb3);
+                backward6(A1, A2, A3, b1, b2, b3,a1,a2, train_x+ 784*index[j*batch+k] ,train_y[index[j*batch+k]], y, dEdA1, dEdA2, dEdA3, dEdb1, dEdb2, dEdb3,&dEda1,&dEda2);
 
                 //平均に加える
                 add(784*50,dEdA1,dEdA1_av);
@@ -126,6 +144,8 @@ void learn_6layers(int train_count,int test_count,float * train_x,unsigned char 
                 add(50,dEdb1,dEdb1_av);
                 add(100,dEdb2,dEdb2_av);
                 add(10,dEdb3,dEdb3_av);
+                dEda1_av += dEda1;
+                dEda2_av += dEda2;
             }
 
             //ミニバッチで割って平均を求める
@@ -135,45 +155,67 @@ void learn_6layers(int train_count,int test_count,float * train_x,unsigned char 
             scale(50,-h/batch,dEdb1_av);
             scale(100,-h/batch,dEdb2_av);
             scale(10,-h/batch,dEdb3_av);
+            dEda1_av *= a_st_rate/batch;
+            dEda2_av *= a_st_rate/batch;
 
             //係数A,bを更新
-            add(784*50,dEdA1_av,A1);
-            add(50*100,dEdA2_av,A2);
-            add(100*10,dEdA3_av,A3);
-            add(50,dEdb1_av,b1);
-            add(100,dEdb2_av,b2);
-            add(10,dEdb3_av,b3);
+            scale(784*50,alpha,before_dEdA1);
+            scale(50*100,alpha,before_dEdA2);
+            scale(50*10,alpha,before_dEdA3);
+            scale(50,alpha,before_dEdb1);
+            scale(100,alpha,before_dEdb2);
+            scale(10,alpha,before_dEdb3);
+
+            add(784*50,dEdA1_av,before_dEdA1);
+            add(50*100,dEdA2_av,before_dEdA2);
+            add(50*10,dEdA3_av,before_dEdA3);
+            add(50,dEdb1_av,before_dEdb1);
+            add(100,dEdb2_av,before_dEdb2);
+            add(10,dEdb3_av,before_dEdb3);
+
+            add(784*50,before_dEdA1,A1);
+            add(50*100,before_dEdA2,A2);
+            add(100*10,before_dEdA3,A3);
+            add(50,before_dEdb1,b1);
+            add(100,before_dEdb2,b2);
+            add(10,before_dEdb3,b3);
+            before_dEda1 = dEda1_av + alpha * before_dEda1;
+            before_dEda2 = dEda2_av + alpha * before_dEda2;
+            a1 += before_dEda1;
+            a2 += before_dEda2;
+            // printf("a1 : %f, a2 : %f\n",before_dEda1,before_dEda2);
         }
+        printf("a1 : %f, a2 : %f\n\n",a1,a2);
 
         //訓練データでの推論
         int sum = 0;
         float loss_sum = 0;
         float acc = 0.0;
         for(m=0 ; m<train_count ; m++) {
-            if(inference6(A1, A2, A3, b1, b2, b3, train_x + m*784,y) == train_y[m]) {
+            if(inference6(A1, A2, A3, b1, b2, b3,a1,a2, train_x + m*784,y) == train_y[m]) {
                 sum++;
             }
             loss_sum += cross_entropy_error(y,train_y[m]);
         }
         acc = sum * 100.0 / train_count;
 
-        printf("Accuracy : %f ％ \n",acc);
-        printf("Loss  Average: %f\n",loss_sum/train_count);
+        printf("Accuracy(train) : %f ％ \n",acc);
+        printf("Loss  Average(train) : %f\n",loss_sum/train_count);
 
         //テストデータでの推論
         int sum_test = 0;
         float loss_sum_test = 0;
         float acc_test = 0.0;
         for(m=0 ; m<test_count ; m++) {
-            if(inference6(A1, A2, A3, b1, b2, b3, test_x + m*784,y) == test_y[m]) {
+            if(inference6(A1, A2, A3, b1, b2, b3,a1,a2, test_x + m*784,y) == test_y[m]) {
                 sum_test++;
             }
             loss_sum_test += cross_entropy_error(y,test_y[m]);
         }
         acc_test = sum_test * 100.0 / test_count;
 
-        printf("Accuracy Val : %f ％ \n",acc_test);
-        printf("Loss  Average Val : %f\n",loss_sum_test/test_count);
+        printf("Accuracy(test) : %f ％ \n",acc_test);
+        printf("Loss  Average(test) : %f\n",loss_sum_test/test_count);
     }
 
     //パラメータを保存
