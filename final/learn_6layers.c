@@ -80,7 +80,7 @@ void learn_6layers(int train_count,int test_count,float * train_x,unsigned char 
 
     //変数初期化
     int * index = malloc(sizeof(int)*train_count);
-    int epoch = 20;
+    int epoch = 50;
     int batch = 100;
     float h = 0.01;
     int i,j,k,l,m;

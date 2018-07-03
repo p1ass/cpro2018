@@ -8,6 +8,7 @@ GitHub URL : https://github.com/naoki-kishi/cpro2018
 #include <math.h>
 #include "nn_module.h"
 
+#define DROPOUT_RATIO 0.5
 //m*n行列xを表示
 void print(int m, int n, const float *x){
     int i, j;
@@ -97,19 +98,23 @@ void softmax(int m, const float *x, float *y){
 }
 
 //ドロップアウト層
-void dropout(int m,const float * x,float * y, float * mask,float dropout_ratio){
+void dropout(int m, float * x,float * y, float * mask,float dropout_ratio,int isTrain){
     int i;
     for(i=0;i<m;i++){
-        if(uniform() <= 1*dropout_ratio){
-            mask[i] = 0;
-            y[i] = 0;
-        }else{
-            mask[i] = 1;
-            y[i] = x[i];
+        if (isTrain == 1){
+            if(uniform() <= 1*dropout_ratio){
+                mask[i] = 0;
+                y[i] = 0;
+            }else{
+                mask[i] = 1;
+                y[i] = x[i];
+            }
         }
-
     }
 
+    if(isTrain == 0){
+        scale(m,1.0-dropout_ratio,y);
+    }
 }
 
 //3層による推論を行い、得られた結果[0:9]を返す
@@ -135,13 +140,18 @@ int inference3(const float *A, const float *b, const float *x,float * y){
 }
 
 //6層による推論を行い、得られた結果[0:9]を返す
-int inference6(const float *A1,const float *A2,const float *A3, const float *b1,  const float *b2, const float *b3, const float *x,float * y){
+int inference6(const float *A1,const float *A2,const float *A3, const float *b1,  const float *b2, const float *b3, float *x,float * y){
 
     float * y1 = malloc(sizeof(float) * 50);
     float * y2 = malloc(sizeof(float) * 100);
+    float * mask1 = malloc(sizeof(float) *50);
+    float * mask2 = malloc(sizeof(float) *100);
+
     fc(50, 784, x, A1, b1, y1);
     relu(50, y1, y1);
+    dropout(50,y1,y1,mask1,DROPOUT_RATIO,0);
     fc(100, 50, y1, A2, b2, y2);
+    dropout(100,y2,y2,mask2,DROPOUT_RATIO,0);
     relu(100, y2, y2);
     fc(10, 100, y2, A3, b3, y);
     softmax(10, y, y);
@@ -158,6 +168,7 @@ int inference6(const float *A1,const float *A2,const float *A3, const float *b1,
     }
     free(y1);
     free(y2);
+    free(mask1);free(mask2);
     return index;
 }
 
@@ -213,7 +224,11 @@ void fc_bwd(int m, int n, const float *x, const float *dEdy, const float *A, flo
 }
 
 //dropout層の誤差逆伝播
-void dropout_bwd(int m,const float *x, float * y, float * mask,float dropout_ratio ){
+void dropout_bwd(int m,const float *x, float * y, const float * mask ){
+    int i;
+    for(i=0;i<m;i++){
+        y[i] = x[i] *mask[i];
+    }
 
 }
 //3層の誤差逆伝播を行う
@@ -239,7 +254,7 @@ void backward3(const float *A, const float *b, const float *x, unsigned char t, 
 }
 
 //6層の誤差逆伝播を行う
-void backward6(const float *A1,const float *A2,const float *A3, const float *b1,  const float *b2, const float *b3, const float *x, unsigned char t, float *y,
+void backward6(const float *A1,const float *A2,const float *A3, const float *b1,  const float *b2, const float *b3, float *x, unsigned char t, float *y,
     float *dEdA1,float *dEdA2,float *dEdA3, float *dEdb1,float *dEdb2,float *dEdb3){
 
     float  * before_fc1 = malloc(sizeof(float) * 784);
@@ -253,20 +268,27 @@ void backward6(const float *A1,const float *A2,const float *A3, const float *b1,
     float * y2 = malloc(sizeof(float) * 100);
     float *y3 = malloc(sizeof(float) * 10);
 
+    float * mask1 = malloc(sizeof(float) *50);
+    float * mask2 = malloc(sizeof(float) *100);
+
     //順伝播
     copy(1,784,x,before_fc1);
     fc(50, 784, x, A1, b1, before_relu1);
     relu(50, before_relu1, before_fc2);
+    dropout(50,before_fc2,before_fc2,mask1,DROPOUT_RATIO,1);
     fc(100, 50, before_fc2, A2, b2, before_relu2);
     relu(100, before_relu2, before_fc3);
+    dropout(100,before_fc3,before_fc3,mask2,DROPOUT_RATIO,1);
     fc(10, 100, before_fc3, A3, b3, y);
     softmax(10, y, y);
 
     //逆伝播
     softmaxwithloss_bwd(10, y, t, y3);
     fc_bwd(10, 100, before_fc3, y3, A3, dEdA3, dEdb3, y2);
+    dropout_bwd(100,y2,y2,mask2);
     relu_bwd(100, before_relu2, y2, y2);
     fc_bwd(100, 50, before_fc2, y2, A2, dEdA2, dEdb2, y1);
+    dropout_bwd(50,y1,y1,mask1);
     relu_bwd(50, before_relu1, y1, y1);
     fc_bwd(50, 784, before_fc1, y1, A1, dEdA1, dEdb1, y0);
 
@@ -274,6 +296,7 @@ void backward6(const float *A1,const float *A2,const float *A3, const float *b1,
     free(y0);free(y1);free(y2);free(y3);
     free(before_fc1);free(before_fc2);free(before_fc3);
     free(before_relu1);free(before_relu2);
+    free(mask1);free(mask2);
 }
 
 //n行ベクトルxの配列をシャッフルする
