@@ -82,7 +82,7 @@ void learn_6layers(int train_count,int test_count,float * train_x,unsigned char 
     int * index = malloc(sizeof(int)*train_count);
     int epoch = 20;
     int batch = 100;
-    float h = 0.02;
+    float h = 0.01;
     int i,j,k,l,m;
     float alpha = 0.9;
 
@@ -182,8 +182,8 @@ void learn_6layers(int train_count,int test_count,float * train_x,unsigned char 
         }
         acc = sum * 100.0 / train_count;
 
-        printf("Accuracy : %f ％ \n",acc);
-        printf("Loss  Average: %f\n",loss_sum/train_count);
+        printf("Accuracy(train) : %f ％ \n",acc);
+        printf("Loss  Average(train) : %f\n",loss_sum/train_count);
 
         //テストデータでの推論
         int sum_test = 0;
@@ -197,8 +197,8 @@ void learn_6layers(int train_count,int test_count,float * train_x,unsigned char 
         }
         acc_test = sum_test * 100.0 / test_count;
 
-        printf("Accuracy Val : %f ％ \n",acc_test);
-        printf("Loss  Average Val : %f\n",loss_sum_test/test_count);
+        printf("Accuracy(test) : %f ％ \n",acc_test);
+        printf("Loss  Average(test) : %f\n",loss_sum_test/test_count);
     }
 
     //パラメータを保存
