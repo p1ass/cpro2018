@@ -101,9 +101,9 @@ void learn_6layers(int train_count,int test_count,float * train_x,unsigned char 
     init(50,0,b1);
     init(100,0,b2);
     init(10,0,b3);
-    rand_init_by_normal_dist(784*50,A1,0,sqrt(2.0/(784*(1+a1*2))));
-    rand_init_by_normal_dist(50*100,A2,0,sqrt(2.0/(50*(1+a1*2))));
-    rand_init_by_normal_dist(100*10,A3,0,sqrt(2.0/(100*(1+a1*2))));
+    rand_init_by_normal_dist(784*50,A1,0,sqrt(2.0/(784*(1+pow(a1,2)))));
+    rand_init_by_normal_dist(50*100,A2,0,sqrt(2.0/(50*(1+pow(a1,2)))));
+    rand_init_by_normal_dist(100*10,A3,0,sqrt(2.0/(100*(1+pow(a1,2)))));
 
 
     //インデックスを作成し、並び替え
