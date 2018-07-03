@@ -6,6 +6,7 @@ GitHub URL : https://github.com/naoki-kishi/cpro2018
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include "nn_module.h"
 
 //m*n行列xを表示
 void print(int m, int n, const float *x){
@@ -93,6 +94,22 @@ void softmax(int m, const float *x, float *y){
     {
         y[i] = exp(x[i] - max) / sum;
     }
+}
+
+//ドロップアウト層
+void dropout(int m,const float * x,float * y, float * mask,float dropout_ratio){
+    int i;
+    for(i=0;i<m;i++){
+        if(uniform() <= 1*dropout_ratio){
+            mask[i] = 0;
+            y[i] = 0;
+        }else{
+            mask[i] = 1;
+            y[i] = x[i];
+        }
+
+    }
+
 }
 
 //3層による推論を行い、得られた結果[0:9]を返す
@@ -195,6 +212,10 @@ void fc_bwd(int m, int n, const float *x, const float *dEdy, const float *A, flo
    }
 }
 
+//dropout層の誤差逆伝播
+void dropout_bwd(int m,const float *x, float * y, float * mask,float dropout_ratio ){
+
+}
 //3層の誤差逆伝播を行う
 void backward3(const float *A, const float *b, const float *x, unsigned char t, float *y, float *dEdA, float *dEdb){
     int m = 10;
