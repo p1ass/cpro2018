@@ -56,20 +56,6 @@ void relu(int m, const float *x, float *y){
     }
 }
 
-//m列ベクトルのxに対して、prelu演算を行う y = prelu(x)
-void prelu(int m, const float *x, float *y,float a){
-    int i;
-
-    for (i = 0; i < m; i++){
-        if (x[i] > 0){
-            y[i] = x[i];
-        }
-        else{
-            y[i] = a * x[i];
-        }
-    }
-}
-
 //m行のベクトルxに対して、y = softmax(x)
 void softmax(int m, const float *x, float *y){
     int i;
@@ -96,21 +82,6 @@ void softmax(int m, const float *x, float *y){
     }
 }
 
-//ドロップアウト層
-void dropout(int m,const float * x,float * y, float * mask,float dropout_ratio){
-    int i;
-    for(i=0;i<m;i++){
-        if(uniform() <= 1*dropout_ratio){
-            mask[i] = 0;
-            y[i] = 0;
-        }else{
-            mask[i] = 1;
-            y[i] = x[i];
-        }
-
-    }
-
-}
 
 //3層による推論を行い、得られた結果[0:9]を返す
 int inference3(const float *A, const float *b, const float *x,float * y){
@@ -212,10 +183,6 @@ void fc_bwd(int m, int n, const float *x, const float *dEdy, const float *A, flo
    }
 }
 
-//dropout層の誤差逆伝播
-void dropout_bwd(int m,const float *x, float * y, float * mask,float dropout_ratio ){
-
-}
 //3層の誤差逆伝播を行う
 void backward3(const float *A, const float *b, const float *x, unsigned char t, float *y, float *dEdA, float *dEdb){
     int m = 10;

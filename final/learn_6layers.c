@@ -8,7 +8,7 @@ GitHub URL : https://github.com/naoki-kishi/cpro2018
 #include <time.h>
 
 //プロトタイプ宣言
-void learn_6layers(int train_count,int test_count,float * train_x,unsigned char * train_y,float * test_x, unsigned char * test_y, char *argv[]);
+int learn_6layers(int train_count,int test_count,float * train_x,unsigned char * train_y,float * test_x, unsigned char * test_y, char *argv[]);
 
 /*
 第1~3引数 : FC1~FC3のパラメータの保存先
@@ -45,7 +45,7 @@ int main(int argc,char *argv[]){
     return 0;
 }
 
-void learn_6layers(int train_count,int test_count,float * train_x,unsigned char * train_y,float * test_x, unsigned char * test_y, char *argv[]){
+int learn_6layers(int train_count,int test_count,float * train_x,unsigned char * train_y,float * test_x, unsigned char * test_y, char *argv[]){
 
     //初期化
     float *dEdA1 = malloc(sizeof(float) * 784 * 50);
@@ -87,9 +87,9 @@ void learn_6layers(int train_count,int test_count,float * train_x,unsigned char 
     float alpha = 0.9;
 
     //配列の初期化
-    init(50,0,b1);
-    init(100,0,b2);
-    init(10,0,b3);
+    init(50,0.1,b1);
+    init(100,0.1,b2);
+    init(10,0.1,b3);
     rand_init_by_normal_dist(784*50,A1,0,sqrt(2.0/784));
     rand_init_by_normal_dist(50*100,A2,0,sqrt(2.0/50));
     rand_init_by_normal_dist(100*10,A3,0,sqrt(2.0/100));
@@ -199,10 +199,17 @@ void learn_6layers(int train_count,int test_count,float * train_x,unsigned char 
 
         printf("Accuracy(test) : %f ％ \n",acc_test);
         printf("Loss  Average(test) : %f\n",loss_sum_test/test_count);
+
+        if(loss_sum_test/test_count - loss_sum/train_count > 0.03){
+            printf("過学習を検知しました。学習結果を保存せずに終了します。");
+            return -1;
+        }
     }
 
     //パラメータを保存
     save(argv[1], 50, 784, A1, b1);
     save(argv[2], 100, 50, A2, b2);
     save(argv[3], 10, 100, A3, b3);
+
+    return 0;
 }
