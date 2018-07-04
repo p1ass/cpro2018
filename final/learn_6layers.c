@@ -207,6 +207,11 @@ int learn_6layers(int train_count,int test_count,float * train_x,unsigned char *
             printf("過学習を検知しました。学習結果を保存せずに終了します。");
             return -1;
         }
+
+        if(acc_test > 97.0){
+            printf("精度が一定水準に達したので、学習結果を保存して終了します。\n");
+            break;
+        }
     }
 
     //パラメータを保存
