@@ -80,7 +80,7 @@ int learn_6layers(int train_count,int test_count,float * train_x,unsigned char *
 
     //変数初期化
     int * index = malloc(sizeof(int)*train_count);
-    int epoch = 20;
+    int epoch = 10;
     int batch = 100;
     float h = 0.01;
     int i,j,k,l,m;
@@ -90,6 +90,9 @@ int learn_6layers(int train_count,int test_count,float * train_x,unsigned char *
     init(50,0.1,b1);
     init(100,0.1,b2);
     init(10,0.1,b3);
+    // rand_init(784*50,A1);
+    // rand_init(50*100,A2);
+    // rand_init(100*10,A3);
     rand_init_by_normal_dist(784*50,A1,0,sqrt(2.0/784));
     rand_init_by_normal_dist(50*100,A2,0,sqrt(2.0/50));
     rand_init_by_normal_dist(100*10,A3,0,sqrt(2.0/100));

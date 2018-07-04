@@ -283,18 +283,19 @@ void init(int n, float x, float *o){
     }
 }
 
-//[-1:1]の範囲でn行ベクトルoを初期化
-void rand_init(int n, float *o){
-    int i;
-    for (i = 0; i < n; i++){
-        o[i] = ((float)rand() / ((float)RAND_MAX + 1)) * 2 - 1 ;
-    }
-}
-
 //[0:1]の一様乱数を生成
 //http://www.sat.t.u-tokyo.ac.jp/~omi/random_variables_generation.html#Gauss
 float uniform( void ){
     return rand()/(RAND_MAX+1.0);
+}
+
+
+//[-1:1]の範囲でn行ベクトルoを初期化
+void rand_init(int n, float *o){
+    int i;
+    for (i = 0; i < n; i++){
+        o[i] = uniform() * 2 - 1 ;
+    }
 }
 
 //n行ベクトルを正規分布で初期化
