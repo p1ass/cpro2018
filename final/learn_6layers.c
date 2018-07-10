@@ -87,18 +87,15 @@ int learn_6layers(int train_count,int test_count,float * train_x,unsigned char *
     float alpha = 0.9;
 
     //配列の初期化
-    // init(50,0,b1);
-    // init(100,0,b2);
-    // init(10,0,b3);
+    rand_init(50,b1);
+    rand_init(100,b2);
+    rand_init(10,b3);
     // rand_init(784*50,A1);
     // rand_init(50*100,A2);
     // rand_init(100*10,A3);
     rand_init_by_normal_dist(784*50,A1,0,sqrt(2.0/784));
     rand_init_by_normal_dist(50*100,A2,0,sqrt(2.0/50));
     rand_init_by_normal_dist(100*10,A3,0,sqrt(2.0/100));
-    rand_init_by_normal_dist(50,b1,0,sqrt(2.0/784));
-    rand_init_by_normal_dist(100,b2,0,sqrt(2.0/50));
-    rand_init_by_normal_dist(10,b3,0,sqrt(2.0/100));
 
 
 
@@ -206,7 +203,7 @@ int learn_6layers(int train_count,int test_count,float * train_x,unsigned char *
         printf("Accuracy(test) : %f ％ \n",acc_test);
         printf("Loss  Average(test) : %f\n",loss_sum_test/test_count);
 
-        if(loss_sum_test/test_count - loss_sum/train_count > 0.03){
+        if(loss_sum_test/test_count - loss_sum/train_count > 0.04){
             printf("過学習を検知しました。学習結果を保存せずに終了します。");
             return -1;
         }
