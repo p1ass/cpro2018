@@ -7,3 +7,5 @@
 *.o
 
 save*.dat
+learn_6layers.dSYM
+inference_from_image.dSYM
