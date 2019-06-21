@@ -86,7 +86,7 @@ gcc -g -Wall -O2 -o inference_from_image inference_from_image.c nn_module.c  -lm
 
 5. 推論を行う。
 ```bash
-/inference_from_image save1.dat save2.dat save3.dat "./default_font/2.bmp"
+./inference_from_image save1.dat save2.dat save3.dat "./default_font/2.bmp"
 
 読み込んだ画像は2です。
 ```
